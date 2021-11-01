@@ -1,25 +1,26 @@
 import express, { Application, Request, Response } from 'express';
-import { HttpError } from 'http-errors';
+import { Server } from 'socket.io';
+import http from 'http';
+import { catchErrors } from './middlewares/catchErrors';
+import chatRoomRouter from './routes/chatRoom.router';
+import path from 'path';
+import { CONNECT } from './constants/socketio';
+import { socketIOService } from './services/socketIO.service';
 
-const app: Application = express();
-app.use(express.json());
+const appExpress: Application = express();
+const HttpServer: http.Server = http.createServer(appExpress);
+export const appSocketIO = new Server(HttpServer);
 
-app.use('/', (req: Request, res: Response) => {
+appExpress.use(express.json());
+appExpress.use(express.static(path.join(__dirname, '../resources/static')));
+
+appExpress.use('/chatroom', chatRoomRouter);
+appExpress.get('/', (req: Request, res: Response) => {
   res.send("hello, world! i'm chapp");
 });
 
-app.use((err: any, res: Response) => {
-  if (err instanceof HttpError) {
-    return res.status(err.statusCode || 500).json({
-      message: err.message,
-      code: err.statusCode,
-    });
-  }
+appExpress.use(catchErrors);
 
-  return res.status(500).json({
-    message: err.toString(),
-    stack: err.stack,
-  });
-});
+appSocketIO.on(CONNECT, socketIOService);
 
-export default app;
+export default HttpServer;
