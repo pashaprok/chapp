@@ -6,8 +6,8 @@
   "scripts": {
     "prebuild": "rimraf ./dist",
     "build": "tsc",
-    "start": "node ./dist/server.js",
-    "dev": "nodemon ./src/server.ts",
+    "start": "node -r dotenv/config ./dist/server.js",
+    "dev": "nodemon -r dotenv/config ./src/server.ts",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -17,6 +17,7 @@
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "^5.2.0",
     "@typescript-eslint/parser": "^5.2.0",
+    "dotenv": "^10.0.0",
     "eslint": "^8.1.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
