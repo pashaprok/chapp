@@ -11,6 +11,11 @@ import { authConfig } from '../config/auth';
 import UserModel, { User } from '../models/user.model';
 import { Unauthorized } from 'http-errors';
 import { v4 as uuidv4 } from 'uuid';
+import {
+  validation,
+  ValidationErrorI,
+  validationFail,
+} from '../utils/validation';
 
 const createToken = (user: User) => {
   const sub = user._id;
@@ -21,6 +26,11 @@ const createToken = (user: User) => {
 
 export async function registerUser(req: Request, res: Response) {
   const newUser: User = req.body;
+
+  const validateUser: ValidationErrorI[] = await validation(newUser, User);
+  if (validateUser) {
+    return validationFail(validateUser, res);
+  }
 
   const emailExist: User = await UserModel.findOne({
     email: newUser.email,
