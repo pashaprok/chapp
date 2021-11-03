@@ -1,3 +1,3 @@
 export const CONNECT = 'connection';
 export const DISCONNECT = 'disconnect';
-export const CHATMSGEVENT = 'chat message';
+export const CHAT_MSG_EVENT = 'chat message';

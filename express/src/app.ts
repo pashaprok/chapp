@@ -19,13 +19,9 @@ appExpress.use(passport.initialize());
 
 appExpress.use('/users', usersRouter);
 appExpress.use('/chatroom', chatRoomRouter);
-appExpress.get(
-  '/',
-  passport.authenticate('jwt'), // protected by passport-jwt
-  (req: Request, res: Response) => {
-    res.send("hello, world! i'm chapp");
-  },
-);
+appExpress.get('/', (req: Request, res: Response) => {
+  res.send("hello, world! i'm chapp");
+});
 
 appExpress.use(catchErrors);
 
