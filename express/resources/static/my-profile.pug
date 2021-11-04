@@ -1,0 +1,21 @@
+extends base
+
+block content
+    main.main
+        .profile-info
+            .profile-info-header
+                h1 Information about you
+            .profile-info__section
+                .property Name:
+                .value= user.name
+
+            .profile-info__section
+                .property Email:
+                .value= user.email
+
+            .profile-info__section
+                .property Registration date:
+                .value= user.registeredAt
+
+            .profile-info__section
+                button.btn-logout Logout

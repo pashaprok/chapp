@@ -2,8 +2,9 @@ import { Request, Response } from 'express';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import {
-  Strategy as JwtStrategy,
   ExtractJwt,
+  JwtFromRequestFunction,
+  Strategy as JwtStrategy,
   VerifiedCallback,
 } from 'passport-jwt';
 import bcrypt from 'bcrypt';
@@ -13,11 +14,17 @@ import { Unauthorized } from 'http-errors';
 import { v4 as uuidv4 } from 'uuid';
 import { validation } from '../services/validation';
 
-const createToken = (user: User) => {
+const createToken = (user: User, res: Response) => {
   const sub = user._id;
-  return jwt.sign({ sub }, authConfig.jwt.secret, {
+  const token = jwt.sign({ sub }, authConfig.jwt.secret, {
     expiresIn: authConfig.jwt.expire * 60,
   });
+  res.cookie('jwt', token, {
+    httpOnly: true,
+    expires: new Date(Date.now() + authConfig.jwt.expire * 60 * 1000),
+    secure: true,
+  });
+  return token;
 };
 
 export async function registerUser(req: Request, res: Response) {
@@ -36,12 +43,12 @@ export async function registerUser(req: Request, res: Response) {
 
   newUser._id = uuidv4();
 
-  const response: User = await UserModel.create(newUser);
-  const token = createToken(response);
+  const user: User = await UserModel.create(newUser);
+  const token = createToken(user, res);
 
   return res.status(200).json({
     status: 'success',
-    data: response,
+    data: user,
     token,
   });
 }
@@ -54,7 +61,8 @@ export async function loginUser(req: Request, res: Response) {
   if (!userFound || !(await bcrypt.compare(password, userFound.password))) {
     throw new Unauthorized('Incorrect password or email');
   } else {
-    const token = createToken(userFound);
+    const token = createToken(userFound, res);
+
     return res.status(200).json({
       status: 'success',
       data: userFound,
@@ -63,11 +71,31 @@ export async function loginUser(req: Request, res: Response) {
   }
 }
 
+export function logoutUser(req: Request, res: Response) {
+  res.cookie('jwt', 'logged-out', {
+    httpOnly: true,
+  });
+  res.status(200).json({ status: 'success' });
+}
+
+const cookieExtractor: JwtFromRequestFunction = (req: Request) => {
+  let jwt = null;
+  if (req && req.cookies) jwt = req.cookies['jwt'];
+  return jwt;
+};
+
+function jwtExtractFromRequest() {
+  return ExtractJwt.fromExtractors([
+    cookieExtractor,
+    ExtractJwt.fromAuthHeaderAsBearerToken(),
+  ]);
+}
+
 passport.use(
   'jwt',
   new JwtStrategy(
     {
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: jwtExtractFromRequest(),
       secretOrKey: authConfig.jwt.secret,
     },
     async function (jwt_payload, done: VerifiedCallback) {
