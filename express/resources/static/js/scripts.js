@@ -60,6 +60,21 @@ async function signup(name, email, password) {
     }
 }
 
+async function currentUser() {
+    try {
+        const res = await axios({
+            method: 'GET',
+            url: '/users/my-profile',
+        });
+
+        if (res.data.status === 'success') {
+            return res.data.data
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
 async function logout() {
     try {
         const res = await axios({

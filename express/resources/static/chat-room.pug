@@ -4,6 +4,7 @@ html
         block head
             meta(charset='UTF-8')
             meta(name='viewport' content='width=device-width, initial-scale=1.0')
+            link(rel='shortcut icon' type='image/png' href='/static/img/favicon.ico')
             title CHapp | #{title}
             link(rel="stylesheet" href="/static/styles/chat-room.css")
             script(type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/axios/0.24.0/axios.min.js')
@@ -30,8 +31,26 @@ html
                 }
             });
 
-            socket.on('chat message', function (msg) {
+            socket.on("connect", async () => {
+                const me = await currentUser()
+                if(me) {
+                    socket.emit('user join', me);
+                }
+            });
+
+            socket.on('chat info', function (msg) {
                 const item = document.createElement('li');
+                item.classList.add('chat-info');
+                item.textContent = msg;
+                messages.appendChild(item);
+                window.scrollTo(0, document.body.scrollHeight);
+            });
+
+            socket.on('chat message', async function (msg, user, socketId) {
+                const item = document.createElement('li');
+                socket.id === socketId ? item.classList.add('my-msg')
+                                       : item.classList.add('other-msg');
+
                 item.textContent = msg;
                 messages.appendChild(item);
                 window.scrollTo(0, document.body.scrollHeight);

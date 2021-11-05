@@ -49,6 +49,21 @@ body {
     padding: 0.5rem 1rem;
 }
 
-#messages>li:nth-child(odd) {
+/*#messages>li:nth-child(odd) {*/
+/*    background: #efefef;*/
+/*}*/
+
+#messages>li.my-msg {
+    text-align: right;
     background: #efefef;
+}
+
+#messages>li.other-msg {
+    text-align: left;
+    background: #e8f1f3;
+}
+
+#messages>li.chat-info {
+    text-align: center;
+    font-style: italic;
 }
