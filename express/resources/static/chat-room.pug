@@ -13,12 +13,13 @@ html
 
     body
         #chat__header
-            .my-info
-                .name= user.name
-                a.to-prfile(href='/v1/my-profile') my profile
             .users-list
                 #users-in-chat
-
+            .my-info
+                span.name Current user: #{user.name}
+                a.to-profile(href='/v1/my-profile')
+                    i(class="fas fa-user")
+                    span My profile
 
         ul#messages
         form#form
