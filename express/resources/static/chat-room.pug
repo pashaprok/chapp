@@ -12,6 +12,14 @@ html
             script(type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/axios/0.24.0/axios.min.js')
 
     body
+        #chat__header
+            .my-info
+                .name= user.name
+                a.to-prfile(href='/v1/my-profile') my profile
+            .users-list
+                #users-in-chat
+
+
         ul#messages
         form#form
             input#input(autocomplete="off")
@@ -20,48 +28,4 @@ html
 
         script(src='/static/js/scripts.js')
         script(src='https://cdn.socket.io/4.3.2/socket.io.min.js' integrity='sha384-KAZ4DtjNhLChOB/hxXuKqhMLYvx3b5MlT55xPEiNmREKRzeEm+RVPlTnAn0ajQNs' crossorigin='anonymous')
-        script.
-            const socket = io();
-            const messages = document.getElementById('messages');
-            const form = document.getElementById('form');
-            const input = document.getElementById('input');
-
-            form.addEventListener('submit', async function (e) {
-                e.preventDefault();
-                const me = await currentUser();
-                if (input.value) {
-                    socket.emit('send chat message', input.value, me);
-                    input.value = '';
-                }
-            });
-
-            function newEvent(evType, msg) {
-                const item = document.createElement('li');
-                const msgBlock = document.createElement('div');
-                item.appendChild(msgBlock);
-                msgBlock.classList.add('message');
-                msgBlock.classList.add(evType);
-                msgBlock.textContent = msg;
-                messages.appendChild(item);
-                window.scrollTo(0, document.body.scrollHeight);
-            }
-
-            socket.on("connect", async () => {
-                const me = await currentUser();
-                if(me) {
-                    socket.emit('user join', me);
-                }
-            });
-
-            socket.on('chat info', function (msg) {
-                newEvent('chat-info', msg);
-            });
-
-            socket.on('receive chat message', async function (msg, sender) {
-                const me = await currentUser()
-                if(me._id === sender._id) {
-                    newEvent('my-msg', msg);
-                } else {
-                    newEvent('other-msg', msg);
-                }
-            });
+        script(src='/static/js/chat-room.js')

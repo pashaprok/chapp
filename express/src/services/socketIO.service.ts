@@ -4,27 +4,39 @@ import {
   DISCONNECT,
   RECEIVE_CHAT_MSG,
   SEND_CHAT_MSG,
+  SHOW_USERS_LIST,
   USER_JOIN,
 } from '../constants/socketio';
 import { User } from '../models/user.model';
 import { Socket } from 'socket.io';
 
-export function socketIOService(socket: Socket) {
-  const users: Map<string, User> = new Map<string, User>();
+const usersInChat: Map<string, User> = new Map<string, User>();
 
+function checkUserId(candidateId: string): boolean {
+  let check = false;
+  usersInChat.forEach((user: User) => {
+    if (user._id === candidateId) check = true;
+  });
+
+  return check;
+}
+
+const namesInChat = () => {
+  return Array.from(usersInChat.values()).map((user) => user.name);
+};
+
+export function socketIOService(socket: Socket) {
   socket.on(USER_JOIN, (user: User | undefined) => {
     if (user) {
-      users.set(socket.id, user);
-      const msg = `${user.name} is connected!`;
-      const msgme = 'You are connected!';
-      const names = Array.from(users.values())
-        .map((user) => user.name)
-        .join(', ');
-      const msg2 = `Now in chat ${users.size} people. \n This people: ${names}`;
+      if (!checkUserId(user._id)) {
+        usersInChat.set(socket.id, user);
+        const msg = `${user.name} is connected!`;
+        const msgMe = 'You are connected!';
 
-      socket.emit(CHAT_INFO, msgme);
-      socket.broadcast.emit(CHAT_INFO, msg);
-      socket.broadcast.emit(CHAT_INFO, msg2);
+        socket.emit(CHAT_INFO, msgMe);
+        socket.broadcast.emit(CHAT_INFO, msg);
+      }
+      appSocketIO.emit(SHOW_USERS_LIST, namesInChat());
 
       socket.on(SEND_CHAT_MSG, (msg: string, sender: User) => {
         const text = `${user.name}: ${msg}`;
@@ -38,11 +50,15 @@ export function socketIOService(socket: Socket) {
   });
 
   socket.on(DISCONNECT, (reason: string) => {
-    const user: User = users.get(socket.id);
+    const user: User = usersInChat.get(socket.id);
     if (user) {
-      const msg = `${user.name} left chat! (Reason ${reason})`;
-      socket.broadcast.emit(CHAT_INFO, msg);
-      users.delete(socket.id);
+      usersInChat.delete(socket.id);
+
+      if (!checkUserId(user._id)) {
+        appSocketIO.emit(SHOW_USERS_LIST, namesInChat());
+        const msg = `${user.name} left chat! (Reason ${reason})`;
+        socket.broadcast.emit(CHAT_INFO, msg);
+      }
     }
   });
 }
