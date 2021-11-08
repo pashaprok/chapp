@@ -26,42 +26,42 @@ html
             const form = document.getElementById('form');
             const input = document.getElementById('input');
 
-            form.addEventListener('submit', function (e) {
+            form.addEventListener('submit', async function (e) {
                 e.preventDefault();
+                const me = await currentUser();
                 if (input.value) {
-                    socket.emit('chat message', input.value);
+                    socket.emit('send chat message', input.value, me);
                     input.value = '';
                 }
             });
 
+            function newEvent(evType, msg) {
+                const item = document.createElement('li');
+                const msgBlock = document.createElement('div');
+                item.appendChild(msgBlock);
+                msgBlock.classList.add('message');
+                msgBlock.classList.add(evType);
+                msgBlock.textContent = msg;
+                messages.appendChild(item);
+                window.scrollTo(0, document.body.scrollHeight);
+            }
+
             socket.on("connect", async () => {
-                const me = await currentUser()
+                const me = await currentUser();
                 if(me) {
                     socket.emit('user join', me);
                 }
             });
 
             socket.on('chat info', function (msg) {
-                const item = document.createElement('li');
-                const msgBlock = document.createElement('div');
-                item.appendChild(msgBlock);
-                msgBlock.classList.add('message');
-                msgBlock.classList.add('chat-info');
-                msgBlock.textContent = msg;
-                messages.appendChild(item);
-                window.scrollTo(0, document.body.scrollHeight);
+                newEvent('chat-info', msg);
             });
 
-            socket.on('chat message', async function (msg, user, socketId) {
-                const item = document.createElement('li');
-                const msgBlock = document.createElement('div');
-                item.appendChild(msgBlock);
-                msgBlock.classList.add('message');
-                socket.id === socketId ? msgBlock.classList.add('my-msg')
-                                       : msgBlock.classList.add('other-msg');
-
-                msgBlock.textContent = msg;
-
-                messages.appendChild(item);
-                window.scrollTo(0, document.body.scrollHeight);
+            socket.on('receive chat message', async function (msg, sender) {
+                const me = await currentUser()
+                if(me._id === sender._id) {
+                    newEvent('my-msg', msg);
+                } else {
+                    newEvent('other-msg', msg);
+                }
             });

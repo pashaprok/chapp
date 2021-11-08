@@ -1,8 +1,9 @@
 import { appSocketIO } from '../app';
 import {
   CHAT_INFO,
-  CHAT_MSG_EVENT,
   DISCONNECT,
+  RECEIVE_CHAT_MSG,
+  SEND_CHAT_MSG,
   USER_JOIN,
 } from '../constants/socketio';
 import { User } from '../models/user.model';
@@ -15,17 +16,19 @@ export function socketIOService(socket: Socket) {
     if (user) {
       users.set(socket.id, user);
       const msg = `${user.name} is connected!`;
+      const msgme = 'You are connected!';
       const names = Array.from(users.values())
         .map((user) => user.name)
         .join(', ');
       const msg2 = `Now in chat ${users.size} people. \n This people: ${names}`;
 
+      socket.emit(CHAT_INFO, msgme);
       socket.broadcast.emit(CHAT_INFO, msg);
       socket.broadcast.emit(CHAT_INFO, msg2);
 
-      socket.on(CHAT_MSG_EVENT, (msg: string) => {
+      socket.on(SEND_CHAT_MSG, (msg: string, sender: User) => {
         const text = `${user.name}: ${msg}`;
-        appSocketIO.emit(CHAT_MSG_EVENT, text, user, socket.id);
+        appSocketIO.emit(RECEIVE_CHAT_MSG, text, sender);
       });
     }
   });
