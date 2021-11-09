@@ -30,6 +30,6 @@ block content
                         .info
                             i(class="fas fa-user")
                             span  #{other.name}: #{other.email}
-                        a(href='').dark-link
+                        a(href=`/v1/private-room/${user._id}-htiw-${other._id}`).dark-link
                             i(class="far fa-paper-plane")
-                            span  go to messaging(not working yet)
+                            span  go to messaging

@@ -37,3 +37,11 @@ export async function chatRoom(req: Request, res: Response) {
     user,
   });
 }
+
+export async function privateRoom(req: Request, res: Response) {
+  const user: User = await currentUser(req);
+  return res.status(200).render('private-room', {
+    title: 'Private room',
+    user,
+  });
+}
