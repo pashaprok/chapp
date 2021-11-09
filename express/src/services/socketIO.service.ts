@@ -8,6 +8,7 @@ import {
   SEND_CHAT_MSG,
   SEND_PRIVATE_MSG,
   SHOW_USERS_LIST,
+  URL_SPLITTER,
   USER_JOIN,
 } from '../constants/socketio';
 import { User } from '../models/user.model';
@@ -83,7 +84,7 @@ export function socketIOService(socket: Socket) {
   // general chat ---end
 
   socket.on('join-private', (roomName: string, user: User) => {
-    const split: string[] = roomName.split('-htiw-');
+    const split: string[] = roomName.split(URL_SPLITTER);
     if (user && split.length == 2) {
       const unique: PrivateList = [split[0], split[1]];
       const privateList: string[] = [...new Set(unique)].sort((a, b) =>

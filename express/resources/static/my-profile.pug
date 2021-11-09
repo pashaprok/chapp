@@ -18,7 +18,9 @@ block content
                 .value= user.registeredAt
 
             .profile-info__section
-                a(href='/v1/chat-room').dark-link Go to general chat
+                a(href='/v1/chat-room').dark-link
+                    i(class="fas fa-users")
+                    span  Go to general chat
                 button.btn-logout.light-btn Logout
 
             hr.dark-line

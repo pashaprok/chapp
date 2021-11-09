@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   getAllUsers,
   getMe,
+  getOneById,
   updateMe,
   deleteMe,
 } from '../controllers/users.controller';
@@ -15,6 +16,7 @@ import passport from 'passport';
 const router: Router = Router();
 
 router.route('/').get(getAllUsers);
+router.route('/by-id/:_id').get(getOneById);
 router.route('/signup').post(registerUser);
 router.route('/login').post(loginUser);
 router.route('/logout').get(logoutUser);

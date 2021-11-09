@@ -75,6 +75,23 @@ async function currentUser() {
     }
 }
 
+async function getUserById(id) {
+    try {
+        const res = await axios({
+            method: 'GET',
+            url: `/users/by-id/${id}`,
+        });
+
+        if (res.data.status === 'success') {
+            return res.data.data
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+
+
 async function logout() {
     try {
         const res = await axios({

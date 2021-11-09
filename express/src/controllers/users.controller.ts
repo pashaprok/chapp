@@ -20,6 +20,15 @@ export async function getMe(req: Request, res: Response) {
   });
 }
 
+export async function getOneById(req: Request, res: Response) {
+  const _id: string = req.params._id;
+  const user: User = await UserModel.findOne({ _id });
+  return res.status(200).json({
+    status: 'success',
+    data: user,
+  });
+}
+
 export async function deleteMe(req: Request, res: Response) {
   const _id: string = req.user._id;
   const user: User = await UserModel.findOne({ _id });

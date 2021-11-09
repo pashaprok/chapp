@@ -12,7 +12,13 @@ html
             script(type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/axios/0.24.0/axios.min.js')
 
     body
-        .info #{user.name}
+        .private-info
+            .label Your messages with #{anotherUser.name}
+            .link
+                a.to-profile(href='/v1/my-profile')
+                    i(class="fas fa-user")
+                    span My profile(#{user.name})
+
         ul#messages
 
         form#form
