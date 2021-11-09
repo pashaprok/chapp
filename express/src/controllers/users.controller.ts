@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import UserModel, { User } from '../models/user.model';
 import { validation } from '../services/validation';
+import { usersActivitiesLogger } from '../utils/logger';
 
 export async function getAllUsers(req: Request, res: Response) {
   const users: User[] = await UserModel.find();
@@ -21,7 +22,13 @@ export async function getMe(req: Request, res: Response) {
 
 export async function deleteMe(req: Request, res: Response) {
   const _id: string = req.user._id;
+  const user: User = await UserModel.findOne({ _id });
   await UserModel.findOneAndRemove({ _id });
+
+  usersActivitiesLogger.info(
+    `User (${user.name}, email - ${user.email}) was deleted!`,
+  );
+
   return res.status(200).json({
     status: 'success',
   });

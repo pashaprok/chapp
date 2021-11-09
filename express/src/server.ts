@@ -4,9 +4,17 @@ import { appConfig } from './config/app';
 import HttpServer from './app';
 import mongoose from 'mongoose';
 import { mongodbConfig } from './config/mongodb';
+import { appWorkLogger } from './utils/logger';
+
+// import os from 'os';
+// const hostname = os.hostname();
+
+const hostname = 'localhost'; // dev
 
 HttpServer.listen(appConfig.port, async () => {
-  console.log(`Server is running on port ${appConfig.port}...`);
+  appWorkLogger.info(
+    `Server started and running on http://${hostname}:${appConfig.port}`,
+  );
   await mongoose.connect(mongodbConfig.link);
-  console.log('Database is connected...');
+  appWorkLogger.info('Database is connected...');
 });

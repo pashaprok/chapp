@@ -13,6 +13,7 @@ import UserModel, { User } from '../models/user.model';
 import { Unauthorized } from 'http-errors';
 import { v4 as uuidv4 } from 'uuid';
 import { validation } from '../services/validation';
+import { usersActivitiesLogger } from '../utils/logger';
 
 const createToken = (user: User, res: Response) => {
   const sub = user._id;
@@ -46,6 +47,10 @@ export async function registerUser(req: Request, res: Response) {
   const user: User = await UserModel.create(newUser);
   const token = createToken(user, res);
 
+  usersActivitiesLogger.info(
+    `New user registered with: name - ${user.name}, email - ${user.email}, and id - ${user._id}`,
+  );
+
   return res.status(200).json({
     status: 'success',
     data: user,
@@ -62,6 +67,10 @@ export async function loginUser(req: Request, res: Response) {
     throw new Unauthorized('Incorrect password or email');
   } else {
     const token = createToken(userFound, res);
+
+    usersActivitiesLogger.info(
+      `User ${userFound.name} - ${userFound.email} is logged in!(id: ${userFound._id})`,
+    );
 
     return res.status(200).json({
       status: 'success',
