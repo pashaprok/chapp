@@ -42,24 +42,13 @@ body {
     padding: 0.5rem 1rem;
 }
 
-.form__group>input:focus
-.form__group>.btn:focus {
+.form__group>input:focus,
+.light-btn:focus {
     outline: none;
 }
 
 .form__group>.btn {
-    background-color: #91ccd4;
-    color: #002e58;
-    padding: 0.5rem 1rem;
-    border: none;
-    cursor: pointer;
     width: 100%;
-}
-
-.form__group>.btn:active,
-.btn-logout:active {
-    transition: 0.2s ease transform;
-    transform: scale(0.9);
 }
 
 .ortext {
@@ -67,14 +56,34 @@ body {
     text-align: center;
 }
 
-.ortext>a,
-.profile-info__section>a {
-    text-decoration: none;
+.light-btn {
+    background-color: #91ccd4;
     color: #002e58;
+    padding: 0.5rem 1rem;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s ease all;
 }
 
-.ortext>a:visited,
-.profile-info__section>a:visited {
+.light-btn:active {
+    transform: scale(0.9);
+}
+
+.light-btn:hover {
+    box-shadow: 1px 1px 7px rgba(0,46,88,0.8);
+}
+
+.dark-link {
+    text-decoration: none;
+    color: #002e58;
+    transition: 0.2s ease text-shadow;
+}
+
+.dark-link:hover {
+    text-shadow: 1px 1px 7px rgba(245,243,243,0.8);
+}
+
+.dark-link:visited {
     color: #002e58;
 }
 
@@ -84,9 +93,23 @@ body {
 }
 
 .btn-logout {
-    background-color: #91ccd4;
-    color: #002e58;
     padding: 0.5rem 2rem;
+}
+
+.profile-info__section.others {
+    flex-direction: column;
+}
+
+.profile-users-item {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+}
+
+.dark-line {
     border: none;
-    cursor: pointer;
+    background-color: #002e58;
+    color: #002e58;
+    height: 1px;
 }

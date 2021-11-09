@@ -22,9 +22,11 @@ export function getSignupForm(req: Request, res: Response) {
 
 export async function getMyProfile(req: Request, res: Response) {
   const user: User = await currentUser(req);
+  const others: User[] = await UserModel.find({ _id: { $ne: user._id } });
   return res.status(200).render('my-profile', {
     title: 'Account info',
     user,
+    others,
   });
 }
 

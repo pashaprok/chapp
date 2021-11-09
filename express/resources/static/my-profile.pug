@@ -18,5 +18,18 @@ block content
                 .value= user.registeredAt
 
             .profile-info__section
-                a(href='/v1/chat-room') Go to chat
-                button.btn-logout Logout
+                a(href='/v1/chat-room').dark-link Go to general chat
+                button.btn-logout.light-btn Logout
+
+            hr.dark-line
+
+            .profile-info__section.others
+                h2 other users
+                each other in others
+                    .profile-users-item
+                        .info
+                            i(class="fas fa-user")
+                            span  #{other.name}: #{other.email}
+                        a(href='').dark-link
+                            i(class="far fa-paper-plane")
+                            span  go to messaging(not working yet)
