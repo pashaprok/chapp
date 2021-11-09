@@ -83,10 +83,6 @@ body {
     flex-direction: column;
 }
 
-/*#messages>li:nth-child(odd) {*/
-/*    background: #efefef;*/
-/*}*/
-
 .message {
     padding: 1rem 2rem;
     color: #1f3241;

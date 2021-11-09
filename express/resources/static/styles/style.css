@@ -2,4 +2,91 @@ body {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    background: #eff8f9;
+}
+
+.main {
+    color: #002e58;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.login-form,
+.profile-info {
+    padding: 2rem 1rem;
+    background: #5d87a7;
+    color: #eff8f9;
+    margin: 30px auto;
+    max-width: 800px;
+    text-align: center;
+}
+
+.form__group,
+.profile-info__section {
+    padding: 0.5rem 1rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.form__group>label {
+    text-align: left;
+    flex-grow: 1;
+}
+
+.form__group>input {
+    width: 80%;
+    margin-left: 1rem;
+    background-color: #f5f3f3;
+    border: none;
+    padding: 0.5rem 1rem;
+}
+
+.form__group>input:focus
+.form__group>.btn:focus {
+    outline: none;
+}
+
+.form__group>.btn {
+    background-color: #91ccd4;
+    color: #002e58;
+    padding: 0.5rem 1rem;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+}
+
+.form__group>.btn:active,
+.btn-logout:active {
+    transition: 0.2s ease transform;
+    transform: scale(0.9);
+}
+
+.ortext {
+    width: 100%;
+    text-align: center;
+}
+
+.ortext>a,
+.profile-info__section>a {
+    text-decoration: none;
+    color: #002e58;
+}
+
+.ortext>a:visited,
+.profile-info__section>a:visited {
+    color: #002e58;
+}
+
+.profile-info__section>.value {
+    width: 80%;
+    text-align: left;
+}
+
+.btn-logout {
+    background-color: #91ccd4;
+    color: #002e58;
+    padding: 0.5rem 2rem;
+    border: none;
+    cursor: pointer;
 }
