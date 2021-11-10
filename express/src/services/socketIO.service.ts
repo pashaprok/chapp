@@ -14,7 +14,7 @@ import {
 import { User } from '../models/user.model';
 import { Socket } from 'socket.io';
 
-// general
+// ----- general -----
 const usersInChat: Map<string, User> = new Map<string, User>();
 
 function checkUserId(candidateId: string): boolean {
@@ -26,11 +26,12 @@ function checkUserId(candidateId: string): boolean {
   return check;
 }
 
+// return users names
 const namesInChat = () => {
-  return Array.from(usersInChat.values()).map((user) => user.name);
+  return Array.from(usersInChat.values()).map((user: User) => user.name);
 };
 
-// private
+// ----- private -----
 type PrivateList = [string, string];
 
 function checkUserInPrivate(candidate: string, list: PrivateList): boolean {

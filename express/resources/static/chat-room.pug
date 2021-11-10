@@ -15,6 +15,7 @@ html
         #chat__header
             .users-list
                 #users-in-chat
+
             .my-info
                 span.name Current user: #{user.name}
                 a.to-profile(href='/v1/my-profile')
@@ -22,8 +23,7 @@ html
                     span My profile
 
         ul#messages
-        .istyping
-            span#typing-text
+
         form#form
             input#input(autocomplete="off")
             button
