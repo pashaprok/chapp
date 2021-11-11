@@ -85,7 +85,8 @@ body {
 }
 
 .message {
-    padding: 1rem 2rem;
+    border-radius: 1rem;
+    padding: 1rem;
     color: #1f3241;
 }
 
@@ -93,12 +94,14 @@ body {
     align-self: flex-end;
     text-align: right;
     background: #abdb73;
+    border-bottom-right-radius: 0;
 }
 
 .message.other-msg {
     align-self: flex-start;
     text-align: left;
     background: #91ccd4;
+    border-bottom-left-radius: 0;
 }
 
 .message.chat-info {
@@ -106,6 +109,18 @@ body {
     align-self: center;
     text-align: center;
     font-style: italic;
+}
+
+.message > .msg-author {
+    font-weight: bold;
+    padding-bottom: 0.5rem;
+}
+
+.message > .msg-time {
+    padding-top: 0.5rem;
+    font-weight: lighter;
+    font-size: small;
+    text-align: right;
 }
 
 #form > #is-typing {

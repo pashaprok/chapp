@@ -85,9 +85,9 @@ export function socketIOService(socket: Socket) {
         },
       );
 
-      socket.on(SEND_CHAT_MSG, (msg: string, sender: User) => {
-        const text = `${user.name}: ${msg}`;
-        appSocketIO.emit(RECEIVE_CHAT_MSG, text, sender);
+      socket.on(SEND_CHAT_MSG, (msg: string, sender: User, date: Date) => {
+        const msgTime = new Date(date).toLocaleTimeString();
+        appSocketIO.emit(RECEIVE_CHAT_MSG, msg, sender, msgTime);
       });
     }
   });
@@ -143,12 +143,13 @@ export function socketIOService(socket: Socket) {
         socket.broadcast.emit(USER_TYPING_SHOW, user, isTyping);
       });
 
-      socket.on(SEND_PRIVATE_MSG, (msg: string, sender: User) => {
-        const text = `${user.name}: ${msg}`;
+      socket.on(SEND_PRIVATE_MSG, (msg: string, sender: User, date: Date) => {
+        const msgTime = new Date(date).toLocaleTimeString();
+
         Array.from(socket.rooms)
           .filter((it) => it !== socket.id)
           .forEach((id) => {
-            appSocketIO.to(id).emit(RECEIVE_PRIVATE_MSG, text, sender);
+            appSocketIO.to(id).emit(RECEIVE_PRIVATE_MSG, msg, sender, msgTime);
           });
       });
     }

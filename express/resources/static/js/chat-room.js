@@ -11,7 +11,8 @@ form.addEventListener('submit', async function (e) {
     e.preventDefault();
     const me = await currentUser();
     if (input.value) {
-        socket.emit('send chat message', input.value, me);
+
+        socket.emit('send chat message', input.value, me, new Date());
         input.value = '';
     }
 });
@@ -53,11 +54,11 @@ socket.on('chat info', function (msg) {
     newEvent('chat-info', msg);
 });
 
-socket.on('receive chat message', async function (msg, sender) {
+socket.on('receive chat message', async function (msg, sender, time) {
     const me = await currentUser()
     if(me._id === sender._id) {
-        newEvent('my-msg', msg);
+        newEvent('my-msg', msg, time);
     } else {
-        newEvent('other-msg', msg);
+        newEvent('other-msg', msg, time, sender.name);
     }
 });

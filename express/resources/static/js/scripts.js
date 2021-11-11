@@ -2,13 +2,24 @@ const signupForm = document.querySelector('.form--signup');
 const loginForm = document.querySelector('.form--login');
 const logOutBtn = document.querySelector('.btn-logout');
 
-function newEvent(evType, msg) {
+function newEvent(evType, msg, time, sender) {
     const item = document.createElement('li');
     const msgBlock = document.createElement('div');
     item.appendChild(msgBlock);
     msgBlock.classList.add('message');
     msgBlock.classList.add(evType);
-    msgBlock.textContent = msg;
+
+    function createMsgEl(cls, content) {
+        const el = document.createElement('div');
+        el.classList.add(cls);
+        el.innerText = content;
+        msgBlock.appendChild(el);
+    }
+
+    if (sender) createMsgEl('msg-author', sender);
+    createMsgEl('msg-txt', msg);
+    if (time) createMsgEl('msg-time', time);
+
     messages.appendChild(item);
     window.scrollTo(0, document.body.scrollHeight);
 }
