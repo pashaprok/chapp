@@ -2,6 +2,17 @@ const signupForm = document.querySelector('.form--signup');
 const loginForm = document.querySelector('.form--login');
 const logOutBtn = document.querySelector('.btn-logout');
 
+function newEvent(evType, msg) {
+    const item = document.createElement('li');
+    const msgBlock = document.createElement('div');
+    item.appendChild(msgBlock);
+    msgBlock.classList.add('message');
+    msgBlock.classList.add(evType);
+    msgBlock.textContent = msg;
+    messages.appendChild(item);
+    window.scrollTo(0, document.body.scrollHeight);
+}
+
 if (signupForm)
     signupForm.addEventListener('submit', (e) => {
         e.preventDefault();

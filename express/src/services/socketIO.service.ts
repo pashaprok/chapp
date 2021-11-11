@@ -72,13 +72,15 @@ export function socketIOService(socket: Socket) {
 
           if (typingUsers.size) {
             const listBroadcast: User[] = Array.from(typingUsers);
-            typingUsers.delete(user);
-            const listMe: User[] = Array.from(typingUsers);
-            socket.broadcast.emit(USER_TYPING_SHOW_INGENERAL, listBroadcast);
+            const listMe: User[] = listBroadcast.filter(
+              (u: User) => u === user,
+            );
+
             socket.emit(USER_TYPING_SHOW_INGENERAL, listMe);
+            socket.broadcast.emit(USER_TYPING_SHOW_INGENERAL, listBroadcast);
           } else {
-            socket.broadcast.emit(USER_TYPING_SHOW_INGENERAL, []);
             socket.emit(USER_TYPING_SHOW_INGENERAL, []);
+            socket.broadcast.emit(USER_TYPING_SHOW_INGENERAL, []);
           }
         },
       );
