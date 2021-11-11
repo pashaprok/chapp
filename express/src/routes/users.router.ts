@@ -19,7 +19,7 @@ router.route('/').get(getAllUsers);
 router.route('/by-id/:_id').get(getOneById);
 router.route('/signup').post(registerUser);
 router.route('/login').post(loginUser);
-router.route('/logout').get(logoutUser);
+router.use(passport.authenticate('jwt')).route('/logout').get(logoutUser);
 
 router
   .use(passport.authenticate('jwt'))

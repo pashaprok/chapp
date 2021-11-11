@@ -87,11 +87,17 @@ export async function loginUser(req: Request, res: Response) {
   }
 }
 
-export function logoutUser(req: Request, res: Response) {
+export async function logoutUser(req: Request, res: Response) {
+  const user: User = await UserModel.findById(req.user._id);
+
+  usersActivitiesLogger.info(
+    `User ${user.name} - ${user.email} is logged out!(id: ${user._id})`,
+  );
+
   res.cookie('jwt', 'logged-out', {
     httpOnly: true,
   });
-  res.status(200).json({ status: 'success' });
+  return res.status(200).json({ status: 'success' });
 }
 
 const cookieExtractor: JwtFromRequestFunction = (req: Request) => {
