@@ -3,6 +3,9 @@ const messages = document.getElementById('messages');
 const usersInChat = document.getElementById('users-in-chat');
 const form = document.getElementById('form');
 const input = document.getElementById('input');
+const isTypingTxt = document.getElementById('is-typing');
+
+let isTyping = false;
 
 form.addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -35,6 +38,26 @@ socket.on("connect", async () => {
     if(me) {
         socket.emit('user join', me);
     }
+
+    function inputOut() {
+        isTyping = false;
+        socket.emit('user-typing', me, isTyping);
+    }
+
+    input.oninput = () => {
+        isTyping = true;
+        socket.emit('user-typing', me, isTyping);
+        setTimeout(inputOut, 2000);
+    }
+
+    socket.on('user-typing-show', (users) => {
+        if(users.length) {
+            const names = users.map(u=> u.name).join(', ');
+            isTypingTxt.innerText = `${names} is typing...`;
+        } else {
+            isTypingTxt.innerText = '';
+        }
+    })
 });
 
 socket.on('chat info', function (msg) {

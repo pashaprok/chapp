@@ -10,6 +10,10 @@ import {
   SHOW_USERS_LIST,
   URL_SPLITTER,
   USER_JOIN,
+  USER_TYPING,
+  USER_TYPING_INGENERAL,
+  USER_TYPING_SHOW,
+  USER_TYPING_SHOW_INGENERAL,
 } from '../constants/socketio';
 import { User } from '../models/user.model';
 import { Socket } from 'socket.io';
@@ -54,6 +58,30 @@ export function socketIOService(socket: Socket) {
         socket.broadcast.emit(CHAT_INFO, msg);
       }
       appSocketIO.emit(SHOW_USERS_LIST, namesInChat());
+
+      socket.on(
+        USER_TYPING_INGENERAL,
+        (userTyping: User, isTyping: boolean) => {
+          const typingUsers: Set<User> = new Set<User>();
+
+          if (isTyping) {
+            typingUsers.add(userTyping);
+          } else {
+            typingUsers.delete(userTyping);
+          }
+
+          if (typingUsers.size) {
+            const listBroadcast: User[] = Array.from(typingUsers);
+            typingUsers.delete(user);
+            const listMe: User[] = Array.from(typingUsers);
+            socket.broadcast.emit(USER_TYPING_SHOW_INGENERAL, listBroadcast);
+            socket.emit(USER_TYPING_SHOW_INGENERAL, listMe);
+          } else {
+            socket.broadcast.emit(USER_TYPING_SHOW_INGENERAL, []);
+            socket.emit(USER_TYPING_SHOW_INGENERAL, []);
+          }
+        },
+      );
 
       socket.on(SEND_CHAT_MSG, (msg: string, sender: User) => {
         const text = `${user.name}: ${msg}`;
@@ -108,6 +136,10 @@ export function socketIOService(socket: Socket) {
       socket
         .to(updatedRoomName)
         .emit(PRIVATE_INFO, `${user.name} is connected!`);
+
+      socket.on(USER_TYPING, (user: User, isTyping: boolean) => {
+        socket.broadcast.emit(USER_TYPING_SHOW, user, isTyping);
+      });
 
       socket.on(SEND_PRIVATE_MSG, (msg: string, sender: User) => {
         const text = `${user.name}: ${msg}`;

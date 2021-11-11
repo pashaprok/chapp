@@ -3,6 +3,9 @@ const socket = io();
 const messages = document.getElementById('messages');
 const form = document.getElementById('form');
 const input = document.getElementById('input');
+const isTypingTxt = document.getElementById('is-typing');
+
+let isTyping = false;
 
 form.addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -29,6 +32,21 @@ socket.on("connect", async () => {
     if(me) {
         socket.emit('join-private', URL[URL.length-1], me);
     }
+
+    function inputOut() {
+        isTyping = false;
+        socket.emit('user-typing', me, isTyping);
+    }
+
+    input.oninput = () => {
+        isTyping = true;
+        socket.emit('user-typing', me, isTyping);
+        setTimeout(inputOut, 2000);
+    }
+
+    socket.on('user-typing-show', (user, isTypingNow) => {
+        isTypingTxt.innerText = isTypingNow ? `${user.name} is typing...` : '';
+    })
 });
 
 socket.on('private-chat-info', function (msg) {
