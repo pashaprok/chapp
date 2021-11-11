@@ -4,21 +4,29 @@ import { Forbidden, Unauthorized } from 'http-errors';
 import { URL_SPLITTER } from '../constants/socketio';
 
 function currentUser(req: Request) {
-  const authUser = req.user._id;
-  if (!authUser) throw new Unauthorized('You are not logged in!');
-  return UserModel.findById(authUser);
+  if (!req.user) throw new Unauthorized('You are not logged in!');
+  return UserModel.findById(req.user._id);
 }
 
-export function getLoginForm(req: Request, res: Response) {
-  res.status(200).render('login', {
-    title: 'Log into your account',
-  });
+function checkLoggedIn(req: Request, res: Response, page: string, opts) {
+  if (res.locals.user) {
+    req.user = res.locals.user._id;
+    return res.redirect('/v1/my-profile');
+  } else {
+    return res.status(200).render(page, opts);
+  }
 }
 
-export function getSignupForm(req: Request, res: Response) {
-  res.status(200).render('signup', {
-    title: 'Create your account',
-  });
+export async function getLoginForm(req: Request, res: Response) {
+  const page = 'login';
+  const opts = { title: 'Log into your account' };
+  checkLoggedIn(req, res, page, opts);
+}
+
+export async function getSignupForm(req: Request, res: Response) {
+  const page = 'signup';
+  const opts = { title: 'Create your account' };
+  checkLoggedIn(req, res, page, opts);
 }
 
 export async function getMyProfile(req: Request, res: Response) {

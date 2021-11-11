@@ -30,7 +30,7 @@ appExpress.use(passport.initialize());
 appExpress.use('/v1', viewsRouter);
 appExpress.use('/users', usersRouter);
 appExpress.get('/', (req: Request, res: Response) => {
-  res.send("hello, world! i'm chapp");
+  return res.redirect('/v1/login');
 });
 
 appExpress.use(catchErrors);
