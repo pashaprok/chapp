@@ -30,7 +30,10 @@ const createToken = (user: User, res: Response) => {
 
 export async function registerUser(req: Request, res: Response) {
   const newUser: User = req.body;
-  await validation(newUser, User, res);
+  const validationCheck = await validation(newUser, User, res);
+  if (validationCheck) {
+    return validationCheck;
+  }
 
   const emailExist: User = await UserModel.findOne({
     email: newUser.email,
