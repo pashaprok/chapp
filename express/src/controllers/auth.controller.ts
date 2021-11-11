@@ -62,7 +62,11 @@ export async function registerUser(req: Request, res: Response) {
 }
 
 export async function loginUser(req: Request, res: Response) {
-  await validation(req.body, User, res, true);
+  const validationCheck = await validation(req.body, User, res, true);
+  if (validationCheck) {
+    return validationCheck;
+  }
+
   const { email, password } = req.body;
   const userFound: User = await UserModel.findOne({ email });
 
