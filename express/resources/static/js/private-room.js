@@ -6,47 +6,10 @@ const input = document.getElementById('input');
 const isTypingTxt = document.getElementById('is-typing');
 
 let isTyping = false;
-
-form.addEventListener('submit', async function (e) {
-    e.preventDefault();
-    const me = await currentUser();
-    if (input.value) {
-        socket.emit('send-private-message', input.value, me, new Date());
-        input.value = '';
-    }
-});
-
-socket.on("connect", async () => {
-    const me = await currentUser();
-    if(me) {
-        socket.emit('join-private', URL[URL.length-1], me);
-    }
-
-    function inputOut() {
-        isTyping = false;
-        socket.emit('user-typing', me, isTyping);
-    }
-
-    input.oninput = () => {
-        isTyping = true;
-        socket.emit('user-typing', me, isTyping);
-        setTimeout(inputOut, 2000);
-    }
-
-    socket.on('user-typing-show', (user, isTypingNow) => {
-        isTypingTxt.innerText = isTypingNow ? `${user.name} is typing...` : '';
-    })
-});
-
-socket.on('private-chat-info', function (msg) {
-    newEvent('chat-info', msg);
-});
-
-socket.on('receive-private-message', async function (msg, sender, time) {
-    const me = await currentUser()
-    if(me._id === sender._id) {
-        newEvent('my-msg', msg, time);
-    } else {
-        newEvent('other-msg', msg, time);
-    }
-});
+form.addEventListener('submit', (e) => sendMessage(e, 'send-private-message'));
+socket.on("connect", () => socket.emit('join-private', URL[URL.length-1], me));
+input.oninput = () => userTyping();
+socket.on('user-typing-show', (u, isTypingNow) => showTypingPrivate(u, isTypingNow));
+socket.on('private-chat-info', (msg) => chatInfo(msg));
+socket.on('receive-private-message', (msg, sender, time) => ReceiveMessage(msg, sender, time, 'private'));
+socket.on('receive-private-messages-from-db', (msgs) => ReceiveMsgsFromDB(msgs, 'private'));

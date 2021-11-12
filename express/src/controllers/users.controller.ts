@@ -12,7 +12,7 @@ export async function getAllUsers(req: Request, res: Response) {
 }
 
 export async function getMe(req: Request, res: Response) {
-  const _id: string = req.user._id;
+  const { _id } = req.user;
   const user: User = await UserModel.findOne({ _id });
   return res.status(200).json({
     status: 'success',
@@ -38,9 +38,7 @@ export async function deleteMe(req: Request, res: Response) {
     `User (${user.name}, email - ${user.email}) was deleted!`,
   );
 
-  return res.status(200).json({
-    status: 'success',
-  });
+  return res.status(204);
 }
 
 export async function updateMe(req: Request, res: Response) {

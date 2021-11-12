@@ -10,7 +10,7 @@ function currentUser(req: Request) {
 
 function checkLoggedIn(req: Request, res: Response, page: string, opts) {
   if (res.locals.user) {
-    req.user = res.locals.user._id;
+    req.user = res.locals.user;
     return res.redirect('/v1/my-profile');
   } else {
     return res.status(200).render(page, opts);

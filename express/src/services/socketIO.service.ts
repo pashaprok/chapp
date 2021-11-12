@@ -2,9 +2,12 @@ import { appSocketIO } from '../app';
 import {
   CHAT_INFO,
   DISCONNECT,
+  GENERAL_CHAT_ID,
   PRIVATE_INFO,
   RECEIVE_CHAT_MSG,
+  RECEIVE_GENERAL_MSGS_DB,
   RECEIVE_PRIVATE_MSG,
+  RECEIVE_PRIVATE_MSGS_DB,
   SEND_CHAT_MSG,
   SEND_PRIVATE_MSG,
   SHOW_USERS_LIST,
@@ -15,8 +18,11 @@ import {
   USER_TYPING_SHOW,
   USER_TYPING_SHOW_INGENERAL,
 } from '../constants/socketio';
-import { User } from '../models/user.model';
+import UserModel, { User } from '../models/user.model';
+import ChatModel, { Chat } from '../models/chat.model';
+import MessageModel, { Message } from '../models/message.model';
 import { Socket } from 'socket.io';
+import { v4 as uuidv4 } from 'uuid';
 
 // ----- general -----
 const usersInChat: Map<string, User> = new Map<string, User>();
@@ -47,7 +53,7 @@ function checkUserInPrivate(candidate: string, list: PrivateList): boolean {
 // service
 export function socketIOService(socket: Socket) {
   // general chat ---start
-  socket.on(USER_JOIN, (user: User | undefined) => {
+  socket.on(USER_JOIN, async (user: User | undefined) => {
     if (user) {
       if (!checkUserId(user._id)) {
         usersInChat.set(socket.id, user);
@@ -58,6 +64,27 @@ export function socketIOService(socket: Socket) {
         socket.broadcast.emit(CHAT_INFO, msg);
       }
       appSocketIO.emit(SHOW_USERS_LIST, namesInChat());
+
+      const chatInDB: Chat = await ChatModel.findOne({ _id: GENERAL_CHAT_ID });
+      if (!chatInDB) {
+        await ChatModel.create({
+          _id: GENERAL_CHAT_ID,
+        });
+      }
+
+      const messagesInChat: Message[] = await MessageModel.find({
+        chat: GENERAL_CHAT_ID,
+      }).sort({ msgDate: 'asc' });
+
+      if (messagesInChat.length) {
+        for (let i = 0; i < messagesInChat.length; i++) {
+          messagesInChat[i].author = await UserModel.findById(
+            messagesInChat[i].author,
+          );
+        }
+
+        appSocketIO.to(socket.id).emit(RECEIVE_GENERAL_MSGS_DB, messagesInChat);
+      }
 
       socket.on(
         USER_TYPING_INGENERAL,
@@ -85,10 +112,21 @@ export function socketIOService(socket: Socket) {
         },
       );
 
-      socket.on(SEND_CHAT_MSG, (msg: string, sender: User, date: Date) => {
-        const msgTime = new Date(date).toLocaleTimeString();
-        appSocketIO.emit(RECEIVE_CHAT_MSG, msg, sender, msgTime);
-      });
+      socket.on(
+        SEND_CHAT_MSG,
+        async (msg: string, sender: User, date: Date) => {
+          const msgTime = new Date(date).toLocaleTimeString();
+          appSocketIO.emit(RECEIVE_CHAT_MSG, msg, sender, msgTime);
+
+          await MessageModel.create({
+            _id: uuidv4(),
+            chat: GENERAL_CHAT_ID,
+            author: sender._id,
+            txt: msg,
+            msgDate: new Date(date),
+          });
+        },
+      );
     }
   });
 
@@ -114,7 +152,7 @@ export function socketIOService(socket: Socket) {
   });
   // general chat ---end
 
-  socket.on('join-private', (roomName: string, user: User) => {
+  socket.on('join-private', async (roomName: string, user: User) => {
     const split: string[] = roomName.split(URL_SPLITTER);
     if (user && split.length == 2) {
       const unique: PrivateList = [split[0], split[1]];
@@ -134,6 +172,31 @@ export function socketIOService(socket: Socket) {
       if (checkUserInPrivate(user._id, unique)) {
         socket.join(updatedRoomName);
       }
+      const chatDBID = privateList.join('--');
+
+      const chatInDB: Chat = await ChatModel.findOne({
+        _id: chatDBID,
+      });
+      if (!chatInDB) {
+        await ChatModel.create({
+          _id: chatDBID,
+          usersIn: privateList,
+        });
+      }
+
+      const messagesInChat: Message[] = await MessageModel.find({
+        chat: chatDBID,
+      }).sort({ msgDate: 'asc' });
+
+      if (messagesInChat.length) {
+        for (let i = 0; i < messagesInChat.length; i++) {
+          messagesInChat[i].author = await UserModel.findById(
+            messagesInChat[i].author,
+          );
+        }
+
+        appSocketIO.to(socket.id).emit(RECEIVE_PRIVATE_MSGS_DB, messagesInChat);
+      }
 
       socket
         .to(updatedRoomName)
@@ -148,8 +211,16 @@ export function socketIOService(socket: Socket) {
 
         Array.from(socket.rooms)
           .filter((it) => it !== socket.id)
-          .forEach((id) => {
+          .forEach(async (id) => {
             appSocketIO.to(id).emit(RECEIVE_PRIVATE_MSG, msg, sender, msgTime);
+
+            await MessageModel.create({
+              _id: uuidv4(),
+              chat: chatDBID,
+              author: sender._id,
+              txt: msg,
+              msgDate: new Date(date),
+            });
           });
       });
     }

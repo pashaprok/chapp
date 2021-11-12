@@ -13,8 +13,11 @@ const router: Router = Router();
 
 router.get('/login', isLoggedIn, getLoginForm);
 router.get('/signup', isLoggedIn, getSignupForm);
-router.get('/my-profile', passport.authenticate('jwt'), getMyProfile);
-router.get('/chat-room', passport.authenticate('jwt'), chatRoom);
-router.get('/private-room/:unique', passport.authenticate('jwt'), privateRoom);
+
+router.use(passport.authenticate('jwt'));
+
+router.get('/my-profile', getMyProfile);
+router.get('/chat-room', chatRoom);
+router.get('/private-room/:unique', privateRoom);
 
 export default router;
