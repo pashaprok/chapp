@@ -7,7 +7,10 @@ const isTypingTxt = document.getElementById('is-typing');
 
 let isTyping = false;
 form.addEventListener('submit', (e) => sendMessage(e, 'send chat message'));
-socket.on("connect", () => socket.emit('user join', me));
+socket.on("connect", async () => {
+    const me = await currentUser();
+    socket.emit('user join', me);
+});
 socket.on("show users list", (names) => showUsersInGeneral(names));
 input.oninput = () => userTyping();
 socket.on('user-typing-show', (users) => showTypingGeneral(users));

@@ -7,7 +7,10 @@ const isTypingTxt = document.getElementById('is-typing');
 
 let isTyping = false;
 form.addEventListener('submit', (e) => sendMessage(e, 'send-private-message'));
-socket.on("connect", () => socket.emit('join-private', URL[URL.length-1], me));
+socket.on("connect", async () => {
+    const me = await currentUser();
+    socket.emit('join-private', URL[URL.length-1], me)
+});
 input.oninput = () => userTyping();
 socket.on('user-typing-show', (u, isTypingNow) => showTypingPrivate(u, isTypingNow));
 socket.on('private-chat-info', (msg) => chatInfo(msg));

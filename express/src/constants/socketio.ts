@@ -14,6 +14,7 @@ export const RECEIVE_GENERAL_MSGS_DB = 'receive-general-messages-from-db';
 
 // private
 export const URL_SPLITTER = '-htiw-';
+export const PRIVATE_JOIN = 'join-private';
 export const PRIVATE_INFO = 'private-chat-info';
 export const SEND_PRIVATE_MSG = 'send-private-message';
 export const RECEIVE_PRIVATE_MSG = 'receive-private-message';

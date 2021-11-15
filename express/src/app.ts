@@ -6,7 +6,7 @@ import usersRouter from './routes/users.router';
 import viewsRouter from './routes/views.router';
 import path from 'path';
 import { CONNECT } from './constants/socketio';
-import { socketIOService } from './services/socketIO.service';
+import { socketIOService } from './socketio/socketIO.service';
 import passport from 'passport';
 import cookieParser from 'cookie-parser';
 
