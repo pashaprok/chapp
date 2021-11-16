@@ -1,36 +1,57 @@
 import winston, { format, Logger, LoggerOptions } from 'winston';
 const { combine, splat, timestamp, printf } = format;
 import path from 'path';
+import DailyRotateFile from 'winston-daily-rotate-file';
+import { Format } from 'logform';
 
-const myFormat = printf(({ level, message, timestamp, ...metadata }) => {
-  let msg = `${timestamp} [${level}] : ${message} `;
-  if (metadata) {
-    msg += JSON.stringify(metadata);
+class InfoLogger {
+  private readonly logName: string;
+  private readonly transportRotate: DailyRotateFile;
+  private readonly format: Format;
+  public readonly logger: Logger;
+  constructor(logName) {
+    this.logName = logName;
+    this.transportRotate = this.createTransportRotate();
+    this.format = this.formatLogs();
+    this.logger = this.createLogger();
   }
-  return msg;
-});
 
-function loggerOpts(logName): LoggerOptions {
-  return {
-    format: combine(
-      format.colorize(),
-      splat(),
-      timestamp({ format: 'MMM-DD-YYYY HH:mm:ss' }),
-      myFormat,
-    ),
-    transports: [
-      new winston.transports.Console(),
-      new winston.transports.File({
-        dirname: path.join(__dirname, 'logs'),
-        filename: `${logName}.log`,
-      }),
-    ],
-  };
+  private createTransportRotate() {
+    return new DailyRotateFile({
+      dirname: path.join(__dirname, 'logs'),
+      filename: `${this.logName}-%DATE%.log`,
+      datePattern: 'YYYY-MM-DD-HH',
+      zippedArchive: true,
+      maxSize: '20m',
+      maxFiles: '14d',
+    });
+  }
+
+  private formatLogs() {
+    return printf(({ level, message, timestamp, ...metadata }) => {
+      let msg = `${timestamp} [${level}] : ${message} `;
+      if (metadata) {
+        msg += JSON.stringify(metadata);
+      }
+      return msg;
+    });
+  }
+
+  private createLogger() {
+    const loggerOpts: LoggerOptions = {
+      format: combine(
+        format.colorize(),
+        splat(),
+        timestamp({ format: 'MMM-DD-YYYY HH:mm:ss' }),
+        this.format,
+      ),
+      transports: [new winston.transports.Console(), this.transportRotate],
+    };
+
+    return winston.createLogger(loggerOpts);
+  }
 }
 
-const appWorkOpts = loggerOpts('app-work');
-const usersActivitiesOpts = loggerOpts('users-activities');
-
-export const appWorkLogger: Logger = winston.createLogger(appWorkOpts);
-export const usersActivitiesLogger: Logger =
-  winston.createLogger(usersActivitiesOpts);
+export const appWorkLogger: Logger = new InfoLogger('app-work').logger;
+export const usersActivitiesLogger: Logger = new InfoLogger('users-activities')
+  .logger;
