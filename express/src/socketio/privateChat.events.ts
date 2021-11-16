@@ -1,22 +1,16 @@
 import {
   DISCONNECT,
   PRIVATE_INFO,
-  RECEIVE_GENERAL_MSGS_DB,
   RECEIVE_PRIVATE_MSG,
-  RECEIVE_PRIVATE_MSGS_DB,
   SEND_PRIVATE_MSG,
   URL_SPLITTER,
   USER_TYPING,
   USER_TYPING_SHOW,
 } from '../constants/socketio';
-import ChatModel, { Chat } from '../models/chat.model';
-import MessageModel, { Message } from '../models/message.model';
-import UserModel, { User } from '../models/user.model';
+import { User } from '../models/user.model';
 import { appSocketIO } from '../app';
-import { v4 as uuidv4 } from 'uuid';
 import { Socket } from 'socket.io';
-import { BadRequest, Forbidden } from 'http-errors';
-import { chatInfo } from './common.events';
+import { chatInfo, loadMsgsFromDB, saveMsgToDB } from './common.events';
 
 type PrivateList = [string, string];
 
@@ -68,10 +62,10 @@ export async function userJoinToPrivate(
     if (PrivateInfo.userExistInPrivate(user._id)) {
       socket.join(PrivateInfo.updatedRoomName);
 
-      await loadMsgsFromDBPrivate(
-        socket,
-        PrivateInfo.privateList,
+      await loadMsgsFromDB(
+        socket.id,
         PrivateInfo.chatID,
+        PrivateInfo.privateList,
       );
 
       socket
@@ -115,36 +109,6 @@ export function userDisconnectPrivate(
   socket.to(room).emit(PRIVATE_INFO, `${user.name} left chat! (Reason ${why})`);
 }
 
-async function loadMsgsFromDBPrivate(
-  socket: Socket,
-  listRestrict: string[],
-  chatDBID: string,
-) {
-  const chatInDB: Chat = await ChatModel.findOne({
-    _id: chatDBID,
-  });
-  if (!chatInDB) {
-    await ChatModel.create({
-      _id: chatDBID,
-      usersIn: listRestrict,
-    });
-  }
-
-  const messagesInChat: Message[] = await MessageModel.find({
-    chat: chatDBID,
-  }).sort({ msgDate: 'asc' });
-
-  if (messagesInChat.length) {
-    for (let i = 0; i < messagesInChat.length; i++) {
-      messagesInChat[i].author = await UserModel.findById(
-        messagesInChat[i].author,
-      );
-    }
-
-    appSocketIO.to(socket.id).emit(RECEIVE_PRIVATE_MSGS_DB, messagesInChat);
-  }
-}
-
 async function sendPrivateMsg(
   socket: Socket,
   chatDBID: string,
@@ -157,12 +121,11 @@ async function sendPrivateMsg(
   for (const id of Array.from(socket.rooms).filter((it) => it !== socket.id)) {
     appSocketIO.to(id).emit(RECEIVE_PRIVATE_MSG, msg, sender, msgTime);
 
-    await MessageModel.create({
-      _id: uuidv4(),
+    await saveMsgToDB({
       chat: chatDBID,
       author: sender._id,
       txt: msg,
-      msgDate: new Date(date),
+      msgDate: date,
     });
   }
 }

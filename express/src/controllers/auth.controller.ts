@@ -4,7 +4,6 @@ import bcrypt from 'bcrypt';
 import { authConfig } from '../config/auth';
 import UserModel, { User } from '../models/user.model';
 import { Unauthorized } from 'http-errors';
-import { v4 as uuidv4 } from 'uuid';
 import { validation } from '../services/validation';
 import { usersActivitiesLogger } from '../utils/logger';
 
@@ -37,8 +36,6 @@ export async function registerUser(req: Request, res: Response) {
     newUser.password,
     authConfig.bcrypt.saltRounds,
   );
-
-  newUser._id = uuidv4();
 
   const user: User = await UserModel.create(newUser);
   const token = createToken(user, res);
