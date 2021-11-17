@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import { appSocketIO } from '../app';
 import {
   CHAT_INFO,
@@ -7,7 +8,6 @@ import {
 } from '../constants/socketio';
 import ChatModel, { Chat } from '../models/chat.model';
 import MessageModel, { Message } from '../models/message.model';
-import { v4 as uuidv4 } from 'uuid';
 
 export function chatInfo(message: string) {
   appSocketIO.emit(CHAT_INFO, message);

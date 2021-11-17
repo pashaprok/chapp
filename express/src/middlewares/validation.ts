@@ -11,10 +11,15 @@ interface ValidationErrorI {
 
 class Validation {
   target: any;
+
   validationCandidate: any;
+
   res: Response;
+
   req: Request;
+
   next: NextFunction;
+
   validationOpts: ValidatorOptions;
 
   constructor(req, res, next, target, partial?: boolean) {
@@ -62,16 +67,16 @@ class Validation {
   }
 }
 
-class userValidation extends Validation {
+class UserValidation extends Validation {
   constructor(req, res, next, partial?: boolean) {
     super(req, res, next, User, partial);
   }
 }
 
 export function userPartialValidate(req, res, next) {
-  return new userValidation(req, res, next, true).validate();
+  return new UserValidation(req, res, next, true).validate();
 }
 
 export function userFullValidate(req, res, next) {
-  return new userValidation(req, res, next).validate();
+  return new UserValidation(req, res, next).validate();
 }

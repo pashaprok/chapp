@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import passport from 'passport';
 import {
   getLoginForm,
   getSignupForm,
@@ -6,7 +7,6 @@ import {
   chatRoom,
   privateRoom,
 } from '../controllers/views.controller';
-import passport from 'passport';
 import { isLoggedIn } from '../middlewares/auth.middlewares';
 
 const router: Router = Router();

@@ -1,3 +1,4 @@
+import { Socket } from 'socket.io';
 import { appSocketIO } from '../app';
 import {
   CHAT_INFO,
@@ -10,7 +11,6 @@ import {
   USER_TYPING_SHOW_INGENERAL,
 } from '../constants/socketio';
 import { User } from '../models/user.model';
-import { Socket } from 'socket.io';
 import { chatInfo, loadMsgsFromDB, saveMsgToDB } from './common.events';
 
 class GeneralMessagingInfo {

@@ -1,3 +1,4 @@
+import { Socket } from 'socket.io';
 import {
   DISCONNECT,
   PRIVATE_INFO,
@@ -9,18 +10,23 @@ import {
 } from '../constants/socketio';
 import { User } from '../models/user.model';
 import { appSocketIO } from '../app';
-import { Socket } from 'socket.io';
 import { chatInfo, loadMsgsFromDB, saveMsgToDB } from './common.events';
 
 type PrivateList = [string, string];
 
 class PrivateMessagingInfo {
   private readonly splitedURL: string[];
+
   public readonly uniqueList: PrivateList;
+
   public readonly privateList: string[];
+
   public readonly updatedRoomName: string;
+
   public readonly chatID: string;
+
   socket: Socket;
+
   constructor(s, roomName) {
     this.socket = s;
     this.splitedURL = roomName.split(URL_SPLITTER);
@@ -34,7 +40,7 @@ class PrivateMessagingInfo {
 
   userExistInPrivate(candidate: string) {
     for (let i = 0; i < this.privateList.length; i++) {
-      if (this.privateList[i] == candidate) return true;
+      if (this.privateList[i] === candidate) return true;
     }
   }
 

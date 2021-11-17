@@ -5,10 +5,10 @@ import {
   Strategy as JwtStrategy,
   VerifiedCallback,
 } from 'passport-jwt';
-import { authConfig } from '../config/auth';
-import UserModel, { User } from '../models/user.model';
 import { NextFunction, Request, Response } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
+import { authConfig } from '../config/auth';
+import UserModel, { User } from '../models/user.model';
 
 export async function isLoggedIn(
   req: Request,
@@ -29,7 +29,7 @@ export async function isLoggedIn(
 
 const cookieExtractor: JwtFromRequestFunction = (req: Request) => {
   let jwt = null;
-  if (req && req.cookies) jwt = req.cookies['jwt'];
+  if (req && req.cookies) jwt = req.cookies.jwt;
   return jwt;
 };
 

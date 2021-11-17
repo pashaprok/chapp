@@ -1,14 +1,19 @@
-import winston, { format, Logger, LoggerOptions } from 'winston';
-const { combine, splat, timestamp, printf } = format;
 import path from 'path';
 import DailyRotateFile from 'winston-daily-rotate-file';
 import { Format } from 'logform';
+import winston, { format, Logger, LoggerOptions } from 'winston';
+
+const { combine, splat, timestamp, printf } = format;
 
 class InfoLogger {
   private readonly logName: string;
+
   private readonly transportRotate: DailyRotateFile;
+
   private readonly format: Format;
+
   public readonly logger: Logger;
+
   constructor(logName) {
     this.logName = logName;
     this.transportRotate = this.createTransportRotate();

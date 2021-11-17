@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import { Unauthorized } from 'http-errors';
 import { authConfig } from '../config/auth';
 import UserModel, { User } from '../models/user.model';
-import { Unauthorized } from 'http-errors';
 import { usersActivitiesLogger } from '../utils/logger';
 
 const createToken = (user: User, res: Response) => {

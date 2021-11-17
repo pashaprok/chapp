@@ -1,14 +1,14 @@
 import express, { Application, Request, Response } from 'express';
 import { Server } from 'socket.io';
 import http from 'http';
+import path from 'path';
+import passport from 'passport';
+import cookieParser from 'cookie-parser';
 import { catchErrors } from './middlewares/catchErrors';
 import usersRouter from './routes/users.router';
 import viewsRouter from './routes/views.router';
-import path from 'path';
 import { CONNECT } from './constants/socketio';
 import { socketIOService } from './socketio/socketIO.service';
-import passport from 'passport';
-import cookieParser from 'cookie-parser';
 
 const appExpress: Application = express();
 const HttpServer: http.Server = http.createServer(appExpress);

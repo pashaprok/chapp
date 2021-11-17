@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import passport from 'passport';
 import {
   getAllUsers,
   getMe,
@@ -11,7 +12,6 @@ import {
   logoutUser,
   registerUser,
 } from '../controllers/auth.controller';
-import passport from 'passport';
 import {
   userFullValidate,
   userPartialValidate,

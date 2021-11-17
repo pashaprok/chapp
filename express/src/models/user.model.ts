@@ -1,8 +1,8 @@
 import { prop, getModelForClass } from '@typegoose/typegoose';
 import { IsEmail, IsNotEmpty, Length, Matches } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { strongPasswordRegExp } from '../constants/regex';
 import { v4 as uuidv4 } from 'uuid';
+import { strongPasswordRegExp } from '../constants/regex';
 
 export class User {
   @prop({ default: uuidv4() })

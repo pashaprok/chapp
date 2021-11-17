@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import UserModel, { User } from '../models/user.model';
 import { Forbidden, Unauthorized } from 'http-errors';
+import UserModel, { User } from '../models/user.model';
 import { URL_SPLITTER } from '../constants/socketio';
 
 function currentUser(req: Request) {

@@ -1,6 +1,6 @@
+import { Socket } from 'socket.io';
 import { PRIVATE_JOIN, USER_JOIN } from '../constants/socketio';
 import { User } from '../models/user.model';
-import { Socket } from 'socket.io';
 import { userJoinGeneral } from './generalChat.events';
 import { userJoinToPrivate } from './privateChat.events';
 

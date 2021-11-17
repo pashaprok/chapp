@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import 'express-async-errors';
+import mongoose from 'mongoose';
 import { appConfig } from './config/app';
 import HttpServer from './app';
-import mongoose from 'mongoose';
 import { mongodbConfig } from './config/mongodb';
 import { appWorkLogger } from './utils/logger';
 
