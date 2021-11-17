@@ -3,18 +3,19 @@ import DailyRotateFile from 'winston-daily-rotate-file';
 import { Format } from 'logform';
 import winston, { format, Logger, LoggerOptions } from 'winston';
 
-const { combine, splat, timestamp, printf } = format;
-
 class InfoLogger {
   private readonly logName: string;
 
   private readonly transportRotate: DailyRotateFile;
+
+  private readonly formatLogger;
 
   private readonly format: Format;
 
   public readonly logger: Logger;
 
   constructor(logName) {
+    this.formatLogger = format;
     this.logName = logName;
     this.transportRotate = this.createTransportRotate();
     this.format = this.formatLogs();
@@ -33,21 +34,23 @@ class InfoLogger {
   }
 
   private formatLogs() {
-    return printf(({ level, message, timestamp, ...metadata }) => {
-      let msg = `${timestamp} [${level}] : ${message} `;
-      if (metadata) {
-        msg += JSON.stringify(metadata);
-      }
-      return msg;
-    });
+    return this.formatLogger.printf(
+      ({ level, message, timestamp, ...metadata }) => {
+        let msg = `${timestamp} [${level}] : ${message} `;
+        if (metadata) {
+          msg += JSON.stringify(metadata);
+        }
+        return msg;
+      },
+    );
   }
 
   private createLogger() {
     const loggerOpts: LoggerOptions = {
-      format: combine(
+      format: this.formatLogger.combine(
         format.colorize(),
-        splat(),
-        timestamp({ format: 'MMM-DD-YYYY HH:mm:ss' }),
+        this.formatLogger.splat(),
+        this.formatLogger.timestamp({ format: 'MMM-DD-YYYY HH:mm:ss' }),
         this.format,
       ),
       transports: [new winston.transports.Console(), this.transportRotate],
