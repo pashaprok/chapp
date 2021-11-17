@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import mongoose from 'mongoose';
 import { appSocketIO } from '../app';
 import {
   CHAT_INFO,
@@ -47,7 +47,7 @@ export async function loadMsgsFromDB(
 
 export async function saveMsgToDB(msg: Partial<Message>) {
   await MessageModel.create({
-    _id: uuidv4(),
+    _id: new mongoose.Types.ObjectId(),
     chat: msg.chat,
     author: msg.author,
     txt: msg.txt,

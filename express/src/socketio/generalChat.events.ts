@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { Socket } from 'socket.io';
 import { appSocketIO } from '../app';
 import {
@@ -24,7 +25,7 @@ class GeneralMessagingInfo {
     return Array.from(this.nowUsersIn.values()).map((user: User) => user.name);
   }
 
-  checkUserIdIn(candidate: string) {
+  checkUserIdIn(candidate: mongoose.Types.ObjectId) {
     let check = false;
     this.nowUsersIn.forEach((user: User) => {
       if (user._id === candidate) check = true;
@@ -100,7 +101,7 @@ async function sendMsgInGeneral(message: string, user: User, date: Date) {
 
   await saveMsgToDB({
     chat: GENERAL_CHAT_ID,
-    author: user._id,
+    author: new mongoose.Types.ObjectId(user._id),
     txt: message,
     msgDate: date,
   });

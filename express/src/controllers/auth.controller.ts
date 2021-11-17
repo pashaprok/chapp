@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { Unauthorized } from 'http-errors';
@@ -31,6 +32,8 @@ export async function registerUser(req: Request, res: Response) {
     newUser.password,
     authConfig.bcrypt.saltRounds,
   );
+
+  newUser._id = new mongoose.Types.ObjectId();
 
   const user: User = await UserModel.create(newUser);
   const token = createToken(user, res);

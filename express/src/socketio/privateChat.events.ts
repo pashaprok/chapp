@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { Socket } from 'socket.io';
 import {
   DISCONNECT,
@@ -38,9 +39,9 @@ class PrivateMessagingInfo {
     this.chatID = this.privateList.join('--');
   }
 
-  userExistInPrivate(candidate: string) {
+  userExistInPrivate(candidate: mongoose.Types.ObjectId) {
     for (let i = 0; i < this.privateList.length; i++) {
-      if (this.privateList[i] === candidate) return true;
+      if (this.privateList[i] === String(candidate)) return true;
     }
   }
 

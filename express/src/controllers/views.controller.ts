@@ -49,11 +49,11 @@ export async function chatRoom(req: Request, res: Response) {
 
 export async function privateRoom(req: Request, res: Response) {
   const urlArr = req.originalUrl.split('/');
-  const urlIds = urlArr[urlArr.length - 1].split(URL_SPLITTER);
+  const urlIds: string[] = urlArr[urlArr.length - 1].split(URL_SPLITTER);
   const user: User = await currentUser(req);
   const anotherUser: User = await UserModel.findOne({ _id: urlIds[1] });
 
-  if (!urlIds.includes(user._id))
+  if (!urlIds.includes(String(user._id)))
     throw new Forbidden("It's not your chat, go away!");
 
   return res.status(200).render('private-room', {

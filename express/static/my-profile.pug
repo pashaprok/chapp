@@ -23,15 +23,16 @@ block content
                     span  Go to general chat
                 button.btn-logout.light-btn Logout
 
-            hr.dark-line
+            if others.length>0
+                hr.dark-line
 
-            .profile-info__section.others
-                h2 other users
-                each other in others
-                    .profile-users-item
-                        .info
-                            i(class="fas fa-user")
-                            span  #{other.name}: #{other.email}
-                        a(href=`/v1/private-room/${user._id}-htiw-${other._id}`).dark-link
-                            i(class="far fa-paper-plane")
-                            span  go to messaging
+                .profile-info__section.others
+                    h2 other users
+                    each other in others
+                        .profile-users-item
+                            .info
+                                i(class="fas fa-user")
+                                span  #{other.name}: #{other.email}
+                            a(href=`/v1/private-room/${user._id}-htiw-${other._id}`).dark-link
+                                i(class="far fa-paper-plane")
+                                span  go to messaging

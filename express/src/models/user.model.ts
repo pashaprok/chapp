@@ -1,12 +1,12 @@
 import { prop, getModelForClass } from '@typegoose/typegoose';
 import { IsEmail, IsNotEmpty, Length, Matches } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { v4 as uuidv4 } from 'uuid';
+import mongoose from 'mongoose';
 import { strongPasswordRegExp } from '../constants/regex';
 
 export class User {
-  @prop({ default: uuidv4() })
-  public _id: string;
+  @prop()
+  public _id: mongoose.Types.ObjectId;
 
   @prop({ required: true })
   @IsNotEmpty({ message: 'Can not be empty!' })
