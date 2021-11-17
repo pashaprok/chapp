@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import UserModel, { User } from '../models/user.model';
-import { validation } from '../services/validation';
 import { usersActivitiesLogger } from '../utils/logger';
 
 export async function getAllUsers(req: Request, res: Response) {
@@ -44,7 +43,6 @@ export async function deleteMe(req: Request, res: Response) {
 export async function updateMe(req: Request, res: Response) {
   const _id: string = req.user._id;
   const updateFields: Partial<User> = req.body;
-  await validation(req.body, User, res, true);
   await UserModel.findOneAndUpdate({ _id }, updateFields);
   await getMe(req, res);
 }

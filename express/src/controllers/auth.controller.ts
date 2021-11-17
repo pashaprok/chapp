@@ -4,7 +4,6 @@ import bcrypt from 'bcrypt';
 import { authConfig } from '../config/auth';
 import UserModel, { User } from '../models/user.model';
 import { Unauthorized } from 'http-errors';
-import { validation } from '../services/validation';
 import { usersActivitiesLogger } from '../utils/logger';
 
 const createToken = (user: User, res: Response) => {
@@ -22,10 +21,6 @@ const createToken = (user: User, res: Response) => {
 
 export async function registerUser(req: Request, res: Response) {
   const newUser: User = req.body;
-  const validationCheck = await validation(newUser, User, res);
-  if (validationCheck) {
-    return validationCheck;
-  }
 
   const emailExist: User = await UserModel.findOne({
     email: newUser.email,
@@ -52,11 +47,6 @@ export async function registerUser(req: Request, res: Response) {
 }
 
 export async function loginUser(req: Request, res: Response) {
-  const validationCheck = await validation(req.body, User, res, true);
-  if (validationCheck) {
-    return validationCheck;
-  }
-
   const { email, password } = req.body;
   const userFound: User = await UserModel.findOne({ email });
 
