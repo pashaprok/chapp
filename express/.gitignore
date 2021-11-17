@@ -19,11 +19,11 @@
 !.vscode/extensions.json
 
 # ENV files
-.development.env
-.production.env
+.env
 
 # Logs
 logs
+/src/utils/logs
 *.log
 npm-debug.log*
 pnpm-debug.log*

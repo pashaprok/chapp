@@ -1,0 +1,10 @@
+# docker-compose.yml
+
+version: "3"
+services:
+  app:
+    build: ./express
+    container_name: chapp
+    hostname: chapp
+    ports:
+      - "3000:3000"
