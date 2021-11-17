@@ -15,15 +15,12 @@ const HttpServer: http.Server = http.createServer(appExpress);
 export const appSocketIO = new Server(HttpServer);
 
 appExpress.set('view engine', 'pug');
-appExpress.set('views', path.join(__dirname, '../resources/static'));
+appExpress.set('views', path.join(__dirname, '../static'));
 
 appExpress.use(express.json());
 appExpress.use(cookieParser());
 
-appExpress.use(
-  '/static',
-  express.static(path.join(__dirname, '../resources/static')),
-);
+appExpress.use('/static', express.static(path.join(__dirname, '../static')));
 
 appExpress.use(passport.initialize());
 
