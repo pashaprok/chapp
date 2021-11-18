@@ -1,4 +1,1 @@
-export const strongPasswordRegExp = new RegExp(
-  '(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])',
-  'g',
-);
+export const strongPasswordRegExp = /(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])/g;

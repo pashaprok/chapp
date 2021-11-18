@@ -10,7 +10,6 @@ import {
   USER_TYPING_SHOW,
 } from '../constants/socketio';
 import { User } from '../models/user.model';
-import { appSocketIO } from '../app';
 import { chatInfo, loadMsgsFromDB, saveMsgToDB } from './common.events';
 
 type PrivateList = [string, string];
@@ -39,10 +38,15 @@ class PrivateMessagingInfo {
     this.chatID = this.privateList.join('--');
   }
 
-  userExistInPrivate(candidate: mongoose.Types.ObjectId) {
-    for (let i = 0; i < this.privateList.length; i++) {
-      if (this.privateList[i] === String(candidate)) return true;
+  userExistInPrivate(candidate: mongoose.Types.ObjectId): boolean {
+    let exist = false;
+    for (let i = 0; i < this.privateList.length; i += 1) {
+      if (this.privateList[i] === String(candidate)) {
+        exist = true;
+        break;
+      }
     }
+    return exist;
   }
 
   privateFilter() {
@@ -52,58 +56,6 @@ class PrivateMessagingInfo {
         this.socket.leave(id);
         this.socket.removeAllListeners();
       });
-  }
-}
-
-export async function userJoinToPrivate(
-  socket: Socket,
-  roomName: string,
-  user: User,
-) {
-  const allow: boolean = checkRoomName(socket.id, roomName);
-
-  if (user && allow) {
-    const PrivateInfo = new PrivateMessagingInfo(socket, roomName);
-    PrivateInfo.privateFilter();
-
-    if (PrivateInfo.userExistInPrivate(user._id)) {
-      socket.join(PrivateInfo.updatedRoomName);
-
-      await loadMsgsFromDB(
-        socket.id,
-        PrivateInfo.chatID,
-        PrivateInfo.privateList,
-      );
-
-      socket
-        .to(PrivateInfo.updatedRoomName)
-        .emit(PRIVATE_INFO, `${user.name} is connected!`);
-
-      socket.on(DISCONNECT, (reason: string) =>
-        userDisconnectPrivate(
-          socket,
-          reason,
-          user,
-          PrivateInfo.updatedRoomName,
-        ),
-      );
-    } else {
-      appSocketIO
-        .to(socket.id)
-        .emit(PRIVATE_INFO, "It's not your chat! Go away!");
-    }
-
-    socket.on(USER_TYPING, (user: User, isTyping: boolean) => {
-      socket.broadcast.emit(USER_TYPING_SHOW, user, isTyping);
-    });
-
-    socket.on(
-      SEND_PRIVATE_MSG,
-      async (msg: string, sender: User, date: Date) =>
-        await sendPrivateMsg(socket, PrivateInfo.chatID, msg, sender, date),
-    );
-
-    socket.on(PRIVATE_INFO, (msg: string) => chatInfo(msg));
   }
 }
 
@@ -124,9 +76,15 @@ async function sendPrivateMsg(
   date: Date,
 ) {
   const msgTime = new Date(date).toLocaleTimeString();
+  socket.emit(RECEIVE_PRIVATE_MSG, msg, sender, msgTime);
 
-  for (const id of Array.from(socket.rooms).filter((it) => it !== socket.id)) {
-    appSocketIO.to(id).emit(RECEIVE_PRIVATE_MSG, msg, sender, msgTime);
+  for (
+    let i = 0;
+    i < Array.from(socket.rooms).filter((it) => it !== socket.id).length;
+    i += 1
+  ) {
+    const id = Array.from(socket.rooms).filter((it) => it !== socket.id)[i];
+    socket.to(id).emit(RECEIVE_PRIVATE_MSG, msg, sender, msgTime);
 
     await saveMsgToDB({
       chat: chatDBID,
@@ -137,11 +95,55 @@ async function sendPrivateMsg(
   }
 }
 
-function checkRoomName(s: string, roomName: string) {
+function checkRoomName(socket: Socket, roomName: string) {
   if (roomName.split(URL_SPLITTER).length === 2) {
     return true;
   }
 
-  appSocketIO.to(s).emit(PRIVATE_INFO, 'Incorrect room name!');
+  socket.emit(PRIVATE_INFO, 'Incorrect room name!');
   return false;
+}
+
+export async function userJoinToPrivate(
+  socket: Socket,
+  roomName: string,
+  user: User,
+) {
+  const allow: boolean = checkRoomName(socket, roomName);
+
+  if (user && allow) {
+    const PrivateInfo = new PrivateMessagingInfo(socket, roomName);
+    PrivateInfo.privateFilter();
+
+    if (PrivateInfo.userExistInPrivate(user._id)) {
+      socket.join(PrivateInfo.updatedRoomName);
+
+      await loadMsgsFromDB(socket, PrivateInfo.chatID, PrivateInfo.privateList);
+
+      socket
+        .to(PrivateInfo.updatedRoomName)
+        .emit(PRIVATE_INFO, `${user.name} is connected!`);
+
+      socket.on(DISCONNECT, (reason: string) =>
+        userDisconnectPrivate(
+          socket,
+          reason,
+          user,
+          PrivateInfo.updatedRoomName,
+        ),
+      );
+    } else {
+      socket.emit(PRIVATE_INFO, "It's not your chat! Go away!");
+    }
+
+    socket.on(USER_TYPING, (userTyping: User, isTyping: boolean) => {
+      socket.broadcast.emit(USER_TYPING_SHOW, userTyping, isTyping);
+    });
+
+    socket.on(SEND_PRIVATE_MSG, async (msg: string, sender: User, date: Date) =>
+      sendPrivateMsg(socket, PrivateInfo.chatID, msg, sender, date),
+    );
+
+    socket.on(PRIVATE_INFO, (msg: string) => chatInfo(socket, msg));
+  }
 }

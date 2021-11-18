@@ -10,6 +10,12 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import { authConfig } from '../config/auth';
 import UserModel, { User } from '../models/user.model';
 
+const cookieExtractor: JwtFromRequestFunction = (req: Request) => {
+  let t = null;
+  if (req && req.cookies) t = req.cookies.jwt;
+  return t;
+};
+
 export async function isLoggedIn(
   req: Request,
   res: Response,
@@ -27,12 +33,6 @@ export async function isLoggedIn(
   return next();
 }
 
-const cookieExtractor: JwtFromRequestFunction = (req: Request) => {
-  let jwt = null;
-  if (req && req.cookies) jwt = req.cookies.jwt;
-  return jwt;
-};
-
 function jwtExtractFromRequest() {
   return ExtractJwt.fromExtractors([
     cookieExtractor,
@@ -47,7 +47,7 @@ passport.use(
       jwtFromRequest: jwtExtractFromRequest(),
       secretOrKey: authConfig.jwt.secret,
     },
-    async function (jwt_payload, done: VerifiedCallback) {
+    async (jwt_payload, done: VerifiedCallback) => {
       const user: User = await UserModel.findById(jwt_payload.sub);
 
       return user ? done(null, user) : done(null, false);
@@ -59,7 +59,7 @@ passport.serializeUser((user: Express.User, done) => {
   done(null, user._id);
 });
 
-passport.deserializeUser(async function (id: string, done) {
+passport.deserializeUser(async (id: string, done) => {
   const user: User = await UserModel.findById(id);
   done(null, user);
 });

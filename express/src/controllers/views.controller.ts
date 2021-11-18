@@ -12,9 +12,9 @@ function checkLoggedIn(req: Request, res: Response, page: string, opts) {
   if (res.locals.user) {
     req.user = res.locals.user;
     return res.redirect('/v1/my-profile');
-  } else {
-    return res.status(200).render(page, opts);
   }
+
+  return res.status(200).render(page, opts);
 }
 
 export async function getLoginForm(req: Request, res: Response) {

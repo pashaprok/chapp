@@ -49,9 +49,9 @@ class Validation {
       );
 
       return Validation.validationFail(foundErrors, this.res);
-    } else {
-      return Validation.validationSuccess(this.next);
     }
+
+    return Validation.validationSuccess(this.next);
   }
 
   private static validationSuccess(next: NextFunction) {
@@ -67,16 +67,10 @@ class Validation {
   }
 }
 
-class UserValidation extends Validation {
-  constructor(req, res, next, partial?: boolean) {
-    super(req, res, next, User, partial);
-  }
-}
-
 export function userPartialValidate(req, res, next) {
-  return new UserValidation(req, res, next, true).validate();
+  return new Validation(req, res, next, User, true).validate();
 }
 
 export function userFullValidate(req, res, next) {
-  return new UserValidation(req, res, next).validate();
+  return new Validation(req, res, next, User).validate();
 }

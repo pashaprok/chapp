@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import { Socket } from 'socket.io';
-import { appSocketIO } from '../app';
 import {
   CHAT_INFO,
   DISCONNECT,
@@ -49,34 +48,6 @@ class GeneralMessagingInfo {
 
 const GeneralChat = new GeneralMessagingInfo();
 
-export async function userJoinGeneral(socket: Socket, user: User) {
-  if (user) {
-    if (!GeneralChat.checkUserIdIn(user._id)) {
-      GeneralChat.addUserIn(socket.id, user);
-    }
-
-    appSocketIO.emit(SHOW_USERS_LIST, GeneralChat.namesIn());
-    await loadMsgsFromDB(socket.id, GENERAL_CHAT_ID);
-    notificateConnectionInGeneral(socket, user);
-
-    socket.on(USER_TYPING_INGENERAL, (userTyping: User, isTyping: boolean) =>
-      usersTypingInGeneral(socket, userTyping, isTyping, user),
-    );
-
-    socket.on(DISCONNECT, (reason: string) => {
-      userDisconnectGeneral(socket, reason);
-    });
-
-    socket.on(
-      SEND_CHAT_MSG,
-      async (msg: string, sender: User, date: Date) =>
-        await sendMsgInGeneral(msg, sender, date),
-    );
-
-    socket.on(CHAT_INFO, (msg: string) => chatInfo(msg));
-  }
-}
-
 function notificateConnectionInGeneral(socket: Socket, user: User) {
   socket.emit(CHAT_INFO, 'You are connected!');
   socket.broadcast.emit(CHAT_INFO, `${user.name} is connected!`);
@@ -88,16 +59,22 @@ function userDisconnectGeneral(socket: Socket, why: string) {
     GeneralChat.removeUser(socket.id);
 
     if (!GeneralChat.checkUserIdIn(user._id)) {
-      socket.emit(SHOW_USERS_LIST, GeneralChat.namesIn());
+      socket.broadcast.emit(SHOW_USERS_LIST, GeneralChat.namesIn());
       const msg = `${user.name} left chat! (Reason ${why})`;
       socket.broadcast.emit(CHAT_INFO, msg);
     }
   }
 }
 
-async function sendMsgInGeneral(message: string, user: User, date: Date) {
+async function sendMsgInGeneral(
+  socket: Socket,
+  message: string,
+  user: User,
+  date: Date,
+) {
   const msgTime = new Date(date).toLocaleTimeString();
-  appSocketIO.emit(RECEIVE_CHAT_MSG, message, user, msgTime);
+  socket.broadcast.emit(RECEIVE_CHAT_MSG, message, user, msgTime);
+  socket.emit(RECEIVE_CHAT_MSG, message, user, msgTime);
 
   await saveMsgToDB({
     chat: GENERAL_CHAT_ID,
@@ -130,5 +107,32 @@ function usersTypingInGeneral(
   } else {
     socket.emit(USER_TYPING_SHOW_INGENERAL, []);
     socket.broadcast.emit(USER_TYPING_SHOW_INGENERAL, []);
+  }
+}
+
+export async function userJoinGeneral(socket: Socket, user: User) {
+  if (user) {
+    if (!GeneralChat.checkUserIdIn(user._id)) {
+      GeneralChat.addUserIn(socket.id, user);
+    }
+
+    socket.emit(SHOW_USERS_LIST, GeneralChat.namesIn());
+    socket.broadcast.emit(SHOW_USERS_LIST, GeneralChat.namesIn());
+    await loadMsgsFromDB(socket, GENERAL_CHAT_ID);
+    notificateConnectionInGeneral(socket, user);
+
+    socket.on(USER_TYPING_INGENERAL, (userTyping: User, isTyping: boolean) =>
+      usersTypingInGeneral(socket, userTyping, isTyping, user),
+    );
+
+    socket.on(DISCONNECT, (reason: string) => {
+      userDisconnectGeneral(socket, reason);
+    });
+
+    socket.on(SEND_CHAT_MSG, async (msg: string, sender: User, date: Date) =>
+      sendMsgInGeneral(socket, msg, sender, date),
+    );
+
+    socket.on(CHAT_INFO, (msg: string) => chatInfo(socket, msg));
   }
 }

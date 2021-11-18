@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { appSocketIO } from '../app';
+import { Socket } from 'socket.io';
 import {
   CHAT_INFO,
   GENERAL_CHAT_ID,
@@ -9,12 +9,20 @@ import {
 import ChatModel, { Chat } from '../models/chat.model';
 import MessageModel, { Message } from '../models/message.model';
 
-export function chatInfo(message: string) {
-  appSocketIO.emit(CHAT_INFO, message);
+export function chatInfo(socket: Socket, message: string) {
+  socket.emit(CHAT_INFO, message);
+}
+
+function receiveMsgsFromDB(socket: Socket, msgs: Message[], chatID: string) {
+  if (chatID === GENERAL_CHAT_ID) {
+    socket.emit(RECEIVE_GENERAL_MSGS_DB, msgs);
+  } else {
+    socket.emit(RECEIVE_PRIVATE_MSGS_DB, msgs);
+  }
 }
 
 export async function loadMsgsFromDB(
-  socketId: string,
+  socket: Socket,
   chatDBID: string,
   listRestrict?: string[],
 ) {
@@ -39,9 +47,7 @@ export async function loadMsgsFromDB(
     .populate('author');
 
   if (messagesInChat.length) {
-    chatDBID === GENERAL_CHAT_ID
-      ? appSocketIO.to(socketId).emit(RECEIVE_GENERAL_MSGS_DB, messagesInChat)
-      : appSocketIO.to(socketId).emit(RECEIVE_PRIVATE_MSGS_DB, messagesInChat);
+    receiveMsgsFromDB(socket, messagesInChat, chatDBID);
   }
 }
 
