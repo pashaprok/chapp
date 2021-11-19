@@ -124,6 +124,10 @@ export async function userJoinToPrivate(
         .to(PrivateInfo.updatedRoomName)
         .emit(PRIVATE_INFO, `${user.name} is connected!`);
 
+      socket.on(USER_TYPING, (userTyping: User, isTyping: boolean) => {
+        socket.broadcast.emit(USER_TYPING_SHOW, userTyping, isTyping);
+      });
+
       socket.on(DISCONNECT, (reason: string) =>
         userDisconnectPrivate(
           socket,
@@ -135,10 +139,6 @@ export async function userJoinToPrivate(
     } else {
       socket.emit(PRIVATE_INFO, "It's not your chat! Go away!");
     }
-
-    socket.on(USER_TYPING, (userTyping: User, isTyping: boolean) => {
-      socket.broadcast.emit(USER_TYPING_SHOW, userTyping, isTyping);
-    });
 
     socket.on(SEND_PRIVATE_MSG, async (msg: string, sender: User, date: Date) =>
       sendPrivateMsg(socket, PrivateInfo.chatID, msg, sender, date),
