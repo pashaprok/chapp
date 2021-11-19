@@ -36,7 +36,7 @@ async function login(email, password) {
             location.assign('/v1/my-profile');
         }
     } catch (err) {
-        console.log(err);
+        outputErrors(err);
     }
 }
 
@@ -56,7 +56,7 @@ async function signup(name, email, password) {
             location.assign('/v1/my-profile');
         }
     } catch (err) {
-        console.log(err);
+        outputErrors(err);
     }
 }
 
@@ -88,3 +88,14 @@ async function logout() {
     }
 }
 
+function outputErrors(err) {
+    if(err.response.data.msg === 'Incorrect input data') {
+        let msgsArr = [];
+        err.response.data.errors.forEach(e => {
+            msgsArr.push(`\n${e.validationProperty}: ${e.validationErrors.join(', ')}`);
+        })
+        alert(`Validation error!${msgsArr.join('')}`)
+    } else {
+        console.log(err);
+    }
+}
