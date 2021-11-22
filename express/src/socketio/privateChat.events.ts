@@ -77,13 +77,12 @@ async function sendPrivateMsg(
 ) {
   const msgTime = new Date(date).toLocaleTimeString();
   socket.emit(RECEIVE_PRIVATE_MSG, msg, sender, msgTime);
+  const filteredArray = Array.from(socket.rooms).filter(
+    (it) => it !== socket.id,
+  );
 
-  for (
-    let i = 0;
-    i < Array.from(socket.rooms).filter((it) => it !== socket.id).length;
-    i += 1
-  ) {
-    const id = Array.from(socket.rooms).filter((it) => it !== socket.id)[i];
+  for (let i = 0; i < filteredArray.length; i += 1) {
+    const id = filteredArray[i];
     socket.to(id).emit(RECEIVE_PRIVATE_MSG, msg, sender, msgTime);
 
     await saveMsgToDB({
