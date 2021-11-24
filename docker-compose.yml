@@ -8,3 +8,12 @@ services:
     hostname: chapp
     ports:
       - "3000:3000"
+  mongo:
+    container_name: mongo
+    image: mongo
+    volumes:
+      - mongodata:/data/db
+    ports:
+      - '27018:27017'
+volumes:
+  mongodata:

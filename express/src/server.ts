@@ -15,6 +15,6 @@ HttpServer.listen(appConfig.port, async () => {
   appWorkLogger.info(
     `Server started and running on http://${hostname}:${appConfig.port}`,
   );
-  await mongoose.connect(mongodbConfig.link);
+  await mongoose.connect(mongodbConfig.localDB);
   appWorkLogger.info('Database is connected...');
 });
