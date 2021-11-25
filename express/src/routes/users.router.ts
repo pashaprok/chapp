@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import passport from 'passport';
+// import passport from 'passport';
 import {
   getAllUsers,
   getMe,
@@ -16,6 +16,7 @@ import {
   userFullValidate,
   userPartialValidate,
 } from '../middlewares/validation';
+import { verifyUser } from '../middlewares/jwt';
 
 const router: Router = Router();
 
@@ -24,7 +25,8 @@ router.route('/by-id/:_id').get(getOneById);
 router.route('/signup').post(userFullValidate, registerUser);
 router.route('/login').post(userPartialValidate, loginUser);
 
-router.use(passport.authenticate('jwt'));
+// router.use(passport.authenticate('jwt'));
+router.use(verifyUser);
 
 router.route('/logout').get(logoutUser);
 

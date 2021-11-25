@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import passport from 'passport';
+// import passport from 'passport';
 import {
   getLoginForm,
   getSignupForm,
@@ -7,14 +7,15 @@ import {
   chatRoom,
   privateRoom,
 } from '../controllers/views.controller';
-import { isLoggedIn } from '../middlewares/auth.middlewares';
+import { verifyUser, isLoggedIn } from '../middlewares/jwt';
 
 const router: Router = Router();
 
 router.get('/login', isLoggedIn, getLoginForm);
 router.get('/signup', isLoggedIn, getSignupForm);
 
-router.use(passport.authenticate('jwt'));
+// router.use(passport.authenticate('jwt'));
+router.use(verifyUser);
 
 router.get('/my-profile', getMyProfile);
 router.get('/chat-room', chatRoom);
