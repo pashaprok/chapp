@@ -92,6 +92,6 @@ export async function logoutUser(req: Request, res: Response) {
   //   httpOnly: true,
   // });
   // refresh token
-  JWTLogic.setCookieJWT(res, '', 60);
+  JWTLogic.destroyCookieJWT(res);
   return res.status(200).json({ status: 'success' });
 }
