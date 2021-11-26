@@ -81,17 +81,18 @@ async function sendPrivateMsg(
     (it) => it !== socket.id,
   );
 
-  for (let i = 0; i < filteredArray.length; i += 1) {
-    const id = filteredArray[i];
+  const promises = filteredArray.map((id) => {
     socket.to(id).emit(RECEIVE_PRIVATE_MSG, msg, sender, msgTime);
 
-    await saveMsgToDB({
+    return saveMsgToDB({
       chat: chatDBID,
       author: sender._id,
       txt: msg,
       msgDate: date,
     });
-  }
+  });
+
+  await Promise.all(promises);
 }
 
 function checkRoomName(socket: Socket, roomName: string) {
