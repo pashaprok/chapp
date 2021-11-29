@@ -1,5 +1,4 @@
 import { Router } from 'express';
-// import passport from 'passport';
 import {
   getAllUsers,
   getMe,
@@ -25,7 +24,6 @@ router.route('/by-id/:_id').get(getOneById);
 router.route('/signup').post(userFullValidate, registerUser);
 router.route('/login').post(userPartialValidate, loginUser);
 
-// router.use(passport.authenticate('jwt'));
 router.use(verifyUser);
 
 router.route('/logout').get(logoutUser);

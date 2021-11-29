@@ -2,7 +2,6 @@ import express, { Application, Request, Response } from 'express';
 import { Server } from 'socket.io';
 import http from 'http';
 import path from 'path';
-import passport from 'passport';
 import cookieParser from 'cookie-parser';
 import { catchErrors } from './middlewares/catchErrors';
 import usersRouter from './routes/users.router';
@@ -21,8 +20,6 @@ appExpress.use(express.json());
 appExpress.use(cookieParser());
 
 appExpress.use('/static', express.static(path.join(__dirname, '../static')));
-
-appExpress.use(passport.initialize());
 
 appExpress.use('/v1', viewsRouter);
 appExpress.use('/users', usersRouter);

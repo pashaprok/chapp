@@ -1,5 +1,4 @@
 import { Router } from 'express';
-// import passport from 'passport';
 import {
   getLoginForm,
   getSignupForm,
@@ -14,7 +13,6 @@ const router: Router = Router();
 router.get('/login', isLoggedIn, getLoginForm);
 router.get('/signup', isLoggedIn, getSignupForm);
 
-// router.use(passport.authenticate('jwt'));
 router.use(verifyUser);
 
 router.get('/my-profile', getMyProfile);

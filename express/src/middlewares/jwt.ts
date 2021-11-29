@@ -7,10 +7,6 @@ import UserModel, { User } from '../models/user.model';
 import { authConfig } from '../config/auth';
 import { mins, weeks } from '../constants/nums';
 
-interface HashJwtPayload extends jwt.JwtPayload {
-  hash?: string;
-}
-
 export class JWTLogic {
   readonly accessSecret = authConfig.accessToken.secret;
 
@@ -46,7 +42,7 @@ export class JWTLogic {
   static setCookieJWT(res: Response, access: string, refresh: string) {
     res.cookie('access', access, {
       httpOnly: true,
-      expires: new Date(Date.now() + authConfig.accessToken.expire * mins),
+      expires: new Date(Date.now() + authConfig.refreshToken.expire * weeks),
       secure: true,
     });
 
@@ -132,7 +128,7 @@ export class JWTLogic {
       { ignoreExpiration: true },
     );
 
-    const refreshVerify = <HashJwtPayload>(
+    const refreshVerify = <jwt.JwtPayload>(
       jwt.verify(refreshToken, authConfig.refreshToken.secret)
     );
 
