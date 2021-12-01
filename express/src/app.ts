@@ -8,6 +8,7 @@ import usersRouter from './routes/users.router';
 import viewsRouter from './routes/views.router';
 import { CONNECT } from './constants/socketio';
 import { socketIOService } from './socketio/socketIO.service';
+import redisAdapter from './socketio/redisAdapter';
 
 const appExpress: Application = express();
 const HttpServer: http.Server = http.createServer(appExpress);
@@ -15,6 +16,11 @@ export const appSocketIO = new Server(HttpServer);
 
 appExpress.set('view engine', 'pug');
 appExpress.set('views', path.join(__dirname, '../static'));
+
+appExpress.use((_req, _res, next) => {
+  console.log(`Got request on instance ${process.env.pm_id}`);
+  next();
+});
 
 appExpress.use(express.json());
 appExpress.use(cookieParser());
@@ -30,5 +36,7 @@ appExpress.get('/', (req: Request, res: Response) => {
 appExpress.use(catchErrors);
 
 appSocketIO.on(CONNECT, socketIOService);
+
+appSocketIO.adapter(redisAdapter);
 
 export default HttpServer;

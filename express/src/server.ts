@@ -5,7 +5,6 @@ import { appConfig } from './config/app';
 import HttpServer from './app';
 import { mongodbConfig } from './config/mongodb';
 import { appWorkLogger } from './utils/logger';
-
 // import os from 'os';
 // const hostname = os.hostname();
 
